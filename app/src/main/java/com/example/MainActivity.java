@@ -25,6 +25,15 @@ import android.widget.PopupMenu;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.app.Dialog;
+import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ProgressBar;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -1150,7 +1159,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (localFile != null && localFile.exists() && localFile.getParentFile() != null) {
             String parentDir = localFile.getParentFile().getAbsolutePath();
-            executeInTermux(parentDir, fileName);
+            executeInTermux(parentDir, fileName, localFile);
         } else {
             // For cloud/SAF items without direct POSIX path, sync to Termux workspace
             File syncedDir = new File(termuxEnv.getProjectsPath(), "SyncedWorkspace");
@@ -1159,7 +1168,7 @@ public class MainActivity extends AppCompatActivity {
             try (FileWriter fw = new FileWriter(syncedFile)) {
                 fw.write(binding.codeEditor.getText().toString());
             } catch (Exception ignored) {}
-            executeInTermux(syncedDir.getAbsolutePath(), fileName);
+            executeInTermux(syncedDir.getAbsolutePath(), fileName, syncedFile);
         }
     }
 
@@ -1224,34 +1233,15 @@ public class MainActivity extends AppCompatActivity {
         return "";
     }
 
-    private void executeInTermux(String workingDir, String fileName) {
+    private void executeInTermux(String workingDir, String fileName, File localFile) {
         LanguageRunner runner = runManager.getRunnerForFile(fileName);
         String baseName = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf('.')) : fileName;
         String outputBinary = baseName + ".out";
         String langName = runner.getLanguageName();
 
-        // 1. Special handling for HTML / Web Server
+        // 1. Special handling for HTML / Web Server & Live In-App Preview
         if ("HTML".equalsIgnoreCase(langName) || fileName.endsWith(".html") || fileName.endsWith(".htm")) {
-            File usrBin = new File(getFilesDir(), "usr/bin");
-            StringBuilder webCmd = new StringBuilder();
-            if (!new File(usrBin, "python").exists()) {
-                binding.terminalView.appendOutput("\n\u001B[33m[1/2] 📦 Python (needed for web server) not yet installed. Auto-installing...\u001B[0m\n");
-                webCmd.append("pkg install python -y && ");
-            }
-            webCmd.append("pkill -f 'http.server' 2>/dev/null; python -m http.server 8080 &");
-            binding.terminalView.appendOutput("\n\u001B[32m[2/2] 🌐 Starting Local Web Server in background at http://localhost:8080\u001B[0m\n");
-            runTerminalCommand(webCmd.toString(), workingDir);
-            new AlertDialog.Builder(this)
-                    .setTitle("🌐 Localhost Server Running")
-                    .setMessage("Your HTML/CSS website server is running in the background at:\nhttp://localhost:8080\n\nOpen in phone browser?")
-                    .setPositiveButton("Open Browser", (d, w) -> {
-                        try {
-                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://localhost:8080"));
-                            startActivity(browserIntent);
-                        } catch (Exception ignored) {}
-                    })
-                    .setNegativeButton("Close", null)
-                    .show();
+            handleHtmlExecution(workingDir, fileName, localFile);
             return;
         }
 
@@ -1320,6 +1310,120 @@ public class MainActivity extends AppCompatActivity {
                 explorerAdapter.rebuildTree();
             }
         }, 2000);
+    }
+
+    private void handleHtmlExecution(String workingDir, String fileName, File localFile) {
+        File usrBin = new File(getFilesDir(), "usr/bin");
+        StringBuilder webCmd = new StringBuilder();
+        if (!new File(usrBin, "python").exists()) {
+            binding.terminalView.appendOutput("\n\u001B[33m[1/2] 📦 Python (needed for local server) not yet installed. Auto-installing...\u001B[0m\n");
+            webCmd.append("pkg install python -y && ");
+        }
+
+        // Cleanly kill existing http.server and start persistent background daemon with nohup & disown
+        webCmd.append("pkill -9 -f 'http.server' 2>/dev/null || true; ");
+        webCmd.append("(nohup python -m http.server 8080 --bind 0.0.0.0 --directory \"").append(workingDir).append("\" </dev/null >/dev/null 2>&1 &)");
+
+        binding.terminalView.appendOutput("\n\u001B[32m🌐 Local Web Server started at http://127.0.0.1:8080\u001B[0m\n");
+        binding.terminalView.appendOutput("\u001B[36m📂 Serving folder: " + workingDir + "\u001B[0m\n");
+        runTerminalCommand(webCmd.toString(), workingDir);
+
+        // Open instant In-App Web Preview Dialog
+        showWebPreviewDialog(workingDir, fileName, localFile);
+    }
+
+    private void showWebPreviewDialog(String workingDir, String fileName, File localFile) {
+        Dialog dialog = new Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        dialog.setContentView(R.layout.dialog_web_preview);
+
+        TextView tvTitle = dialog.findViewById(R.id.tvPreviewTitle);
+        TextView tvUrl = dialog.findViewById(R.id.tvPreviewUrl);
+        ImageButton btnRefresh = dialog.findViewById(R.id.btnRefreshPreview);
+        Button btnOpenBrowser = dialog.findViewById(R.id.btnOpenExternalBrowser);
+        ImageButton btnClose = dialog.findViewById(R.id.btnClosePreview);
+        ProgressBar progressWeb = dialog.findViewById(R.id.progressWeb);
+        WebView webView = dialog.findViewById(R.id.webViewPreview);
+
+        tvTitle.setText("Web Preview: " + fileName);
+        String targetUrl = "http://127.0.0.1:8080/" + fileName;
+        tvUrl.setText(targetUrl);
+
+        WebSettings settings = webView.getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setDomStorageEnabled(true);
+        settings.setAllowFileAccess(true);
+        settings.setAllowContentAccess(true);
+        settings.setAllowFileAccessFromFileURLs(true);
+        settings.setAllowUniversalAccessFromFileURLs(true);
+        settings.setDatabaseEnabled(true);
+        settings.setLoadsImagesAutomatically(true);
+        settings.setBuiltInZoomControls(true);
+        settings.setDisplayZoomControls(false);
+        settings.setUseWideViewPort(true);
+        settings.setLoadWithOverviewMode(true);
+
+        webView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onProgressChanged(WebView view, int newProgress) {
+                if (newProgress < 100) {
+                    progressWeb.setVisibility(View.VISIBLE);
+                    progressWeb.setProgress(newProgress);
+                } else {
+                    progressWeb.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                return false;
+            }
+
+            @Override
+            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                loadLocalHtmlDirectly(webView, workingDir, fileName, localFile);
+            }
+        });
+
+        loadHtmlPreview(webView, workingDir, fileName, localFile, targetUrl);
+
+        btnRefresh.setOnClickListener(v -> {
+            loadHtmlPreview(webView, workingDir, fileName, localFile, targetUrl);
+            Toast.makeText(this, "Refreshed Preview", Toast.LENGTH_SHORT).show();
+        });
+
+        btnOpenBrowser.setOnClickListener(v -> {
+            try {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(targetUrl));
+                startActivity(browserIntent);
+            } catch (Exception e) {
+                Toast.makeText(this, "Could not open external browser: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btnClose.setOnClickListener(v -> dialog.dismiss());
+        dialog.setOnDismissListener(d -> webView.destroy());
+
+        dialog.show();
+    }
+
+    private void loadHtmlPreview(WebView webView, String workingDir, String fileName, File localFile, String targetUrl) {
+        if (localFile != null && localFile.exists()) {
+            webView.loadUrl("file://" + localFile.getAbsolutePath());
+        } else {
+            String editorContent = binding.codeEditor.getText().toString();
+            webView.loadDataWithBaseURL("file://" + workingDir + "/", editorContent, "text/html", "UTF-8", null);
+        }
+    }
+
+    private void loadLocalHtmlDirectly(WebView webView, String workingDir, String fileName, File localFile) {
+        if (localFile != null && localFile.exists()) {
+            webView.loadUrl("file://" + localFile.getAbsolutePath());
+        } else {
+            String editorContent = binding.codeEditor.getText().toString();
+            webView.loadDataWithBaseURL("file://" + workingDir + "/", editorContent, "text/html", "UTF-8", null);
+        }
     }
 
     @Override
