@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#1E1E1E">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📜 Open Source Licenses &amp; Credits"
+            android:textColor="@color/white"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Code Editor is powered by world-class open-source projects. In full compliance with open-source licenses, third-party notices and acknowledgments are listed below:"
+            android:textColor="#AAAAAA"
+            android:textSize="12sp" />
+
+        <!-- 1. Termux Project -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="#252525"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1. Termux Project"
+                android:textColor="#00E676"
+                android:textSize="13.5sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="License: GNU General Public License v3.0 (GPLv3)\nCopyright: © Fredrik Fornwall &amp; The Termux Authors\nComponents: Terminal Emulator, PTY Engine, Package Management\nWebsite: https://github.com/termux"
+                android:textColor="#CCCCCC"
+                android:textSize="11.5sp"
+                android:fontFamily="monospace" />
+        </LinearLayout>
+
+        <!-- 2. LLVM & Clang Compiler Toolchain -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#252525"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2. LLVM &amp; Clang Compiler Infrastructure"
+                android:textColor="#00BFA5"
+                android:textSize="13.5sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="License: Apache 2.0 License with LLVM Exception\nCopyright: © LLVM Project Authors\nComponents: C &amp; C++ compiler toolchains (clang, clang++)\nWebsite: https://llvm.org"
+                android:textColor="#CCCCCC"
+                android:textSize="11.5sp"
+                android:fontFamily="monospace" />
+        </LinearLayout>
+
+        <!-- 3. Python Software Foundation -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#252525"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3. Python 3 Runtime"
+                android:textColor="#FFD54F"
+                android:textSize="13.5sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="License: Python Software Foundation License (PSF-2.0)\nCopyright: © Python Software Foundation\nComponents: Python runtime and standard library\nWebsite: https://www.python.org"
+                android:textColor="#CCCCCC"
+                android:textSize="11.5sp"
+                android:fontFamily="monospace" />
+        </LinearLayout>
+
+        <!-- 4. GNU Project (Bash & Coreutils) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#252525"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="4. GNU Project (Bash &amp; Core Utilities)"
+                android:textColor="#80D8FF"
+                android:textSize="13.5sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="License: GNU General Public License v3.0 (GPLv3)\nCopyright: © Free Software Foundation, Inc.\nComponents: GNU Bourne Again SHell (bash), Coreutils\nWebsite: https://www.gnu.org"
+                android:textColor="#CCCCCC"
+                android:textSize="11.5sp"
+                android:fontFamily="monospace" />
+        </LinearLayout>
+
+        <!-- 5. BusyBox -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#252525"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="5. BusyBox"
+                android:textColor="#FFAB91"
+                android:textSize="13.5sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="License: GNU General Public License v2.0 (GPLv2)\nCopyright: © Erik Andersen, Rob Landley, Denys Vlasenko &amp; others\nComponents: Embedded Unix core utilities\nWebsite: https://busybox.net"
+                android:textColor="#CCCCCC"
+                android:textSize="11.5sp"
+                android:fontFamily="monospace" />
+        </LinearLayout>
+
+        <!-- 6. Android Jetpack & Material Components -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#252525"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="6. Android Open Source Project (AOSP)"
+                android:textColor="#B388FF"
+                android:textSize="13.5sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="License: Apache License 2.0\nCopyright: © The Android Open Source Project\nComponents: AndroidX, Material Components, DocumentFile (SAF)\nWebsite: https://source.android.com"
+                android:textColor="#CCCCCC"
+                android:textSize="11.5sp"
+                android:fontFamily="monospace" />
+        </LinearLayout>
+
+        <!-- Compliance Statement -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="#161616"
+            android:padding="10dp"
+            android:text="ℹ️ Compliance Statement: This application strictly honors and adheres to the terms of the GNU General Public License (GPL) and Apache 2.0 licenses. External binaries and packages run as standalone aggregate processes and remain under their respective copyright and licensing terms."
+            android:textColor="#888888"
+            android:textSize="11sp" />
+
+    </LinearLayout>
+</ScrollView>

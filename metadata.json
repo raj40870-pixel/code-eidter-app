@@ -1,0 +1,6 @@
+{
+  "name": "Mobile IDE",
+  "description": "A mobile coding IDE with integrated Termux terminal for development on the go.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/ll_node_root"
+    android:layout_width="match_parent"
+    android:layout_height="38dp"
+    android:background="?attr/selectableItemBackground"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingEnd="10dp">
+
+    <!-- Dynamic Indentation Spacer -->
+    <View
+        android:id="@+id/view_indent"
+        android:layout_width="0dp"
+        android:layout_height="1dp" />
+
+    <!-- Active File Teal Arrow Indicator (▶) like Spck Editor -->
+    <ImageView
+        android:id="@+id/iv_active_indicator"
+        android:layout_width="12dp"
+        android:layout_height="12dp"
+        android:layout_marginStart="2dp"
+        android:src="@drawable/ic_play"
+        app:tint="#00E676"
+        android:visibility="invisible" />
+
+    <!-- Folder Chevron Arrow (Visible for directories) -->
+    <ImageView
+        android:id="@+id/iv_chevron"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:padding="2dp"
+        android:src="@drawable/ic_chevron_right"
+        app:tint="#888888" />
+
+    <!-- Folder Icon (Gold Folder for directories) -->
+    <ImageView
+        android:id="@+id/iv_folder_icon"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_marginStart="2dp"
+        android:src="@drawable/ic_folder"
+        app:tint="#E0A842" />
+
+    <!-- Official Real Language Logo (HTML5 shield, JS square, CSS3, etc.) -->
+    <ImageView
+        android:id="@+id/iv_file_logo"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_marginStart="2dp"
+        android:src="@drawable/ic_logo_html5" />
+
+    <!-- File / Folder Name -->
+    <TextView
+        android:id="@+id/tv_node_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginStart="8dp"
+        android:text="main.cpp"
+        android:textColor="@color/white"
+        android:textSize="13.5sp"
+        android:fontFamily="monospace"
+        android:singleLine="true" />
+
+    <!-- Direct Red Trash Can Delete Button -->
+    <ImageView
+        android:id="@+id/iv_node_delete"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:padding="4dp"
+        android:src="@drawable/ic_delete"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        app:tint="#E57373"
+        android:contentDescription="Delete" />
+
+</LinearLayout>

@@ -1,0 +1,20 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- HTML5 Orange Shield -->
+    <path
+        android:fillColor="#E44D26"
+        android:pathData="M3,2l1.6,18.4L12,23l7.4,-2.6L21,2H3z" />
+    <path
+        android:fillColor="#F16529"
+        android:pathData="M12,3.8v17.4l5.8,-2L19.2,3.8H12z" />
+    <!-- White '5' Figure -->
+    <path
+        android:fillColor="#EBEBEB"
+        android:pathData="M12,7.2H7.4l0.4,4.2H12V7.2z M12,14.6l-2.4,-0.6 -0.2,-2H7.2l0.3,3.7 4.5,1.2V14.6z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,7.2v4.2h4.2l-0.4,4.2 -3.8,1V19l5.8,-1.6 0.8,-8.2 0.2,-2H12z" />
+</vector>

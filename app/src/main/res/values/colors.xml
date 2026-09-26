@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#5B9DF5</color>
+    <color name="purple_700">#3875D7</color>
+    <color name="teal_200">#4CAF50</color>
+    <color name="teal_700">#388E3C</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Reference UI Colors (Exact Match) -->
+    <color name="ide_toolbar_bg">#212121</color>
+    <color name="ide_subbar_bg">#1B1B1B</color>
+    <color name="editor_bg">#181818</color>
+    <color name="editor_fg">#E6E6E6</color>
+    <color name="gutter_bg">#181818</color>
+    <color name="gutter_fg">#666666</color>
+    <color name="divider_color">#2A2A2A</color>
+
+    <color name="accent_blue">#5B9DF5</color>
+    <color name="paste_blue">#5B9DF5</color>
+    <color name="run_white">#FFFFFF</color>
+
+    <!-- Two-Tier Bottom Bar -->
+    <color name="tier1_keywords_bg">#1B1B1B</color>
+    <color name="keyword_text_color">#5B9DF5</color>
+    <color name="tier2_symbols_bg">#141414</color>
+    <color name="symbol_text_color">#ECECEC</color>
+    <color name="symbol_btn_bg">#2A2A2A</color>
+    <color name="symbol_btn_fg">#FFFFFF</color>
+
+    <!-- Terminal Colors -->
+    <color name="terminal_bg">#121212</color>
+    <color name="terminal_fg">#DCDCDC</color>
+    <color name="terminal_header_bg">#1E1E1E</color>
+    <color name="run_green">#4CAF50</color>
+
+    <!-- Syntax Highlighting -->
+    <color name="syntax_keyword">#5B9DF5</color>
+    <color name="syntax_string">#CE7D68</color>
+    <color name="syntax_comment">#6A9955</color>
+    <color name="syntax_type">#4EC9B0</color>
+    <color name="syntax_number">#B5CEA8</color>
+    <color name="syntax_preprocessor">#C586C0</color>
+</resources>

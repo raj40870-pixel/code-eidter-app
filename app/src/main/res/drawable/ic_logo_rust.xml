@@ -1,0 +1,14 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Gear Body in Orange -->
+    <path
+        android:fillColor="#DEA584"
+        android:pathData="M12,2a10,10 0 1,0 10,10A10,10 0 0,0 12,2z M12,19a7,7 0 1,1 7,-7A7,7 0 0,1 12,19z" />
+    <!-- 'R' Center in Orange -->
+    <path
+        android:fillColor="#DEA584"
+        android:pathData="M9,8h3.5c1.4,0 2.5,0.9 2.5,2.2 0,1 -0.6,1.8 -1.5,2.1l1.8,3.7h-1.8l-1.5,-3.2H10.5V16H9V8z M10.5,11.5h1.8c0.7,0 1.2,-0.4 1.2,-1s-0.5,-1 -1.2,-1h-1.8v2z" />
+</vector>

@@ -1,0 +1,488 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/editor_bg"
+    tools:context=".MainActivity">
+
+    <!-- Main IDE Screen -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- Reference UI Top App Bar -->
+        <LinearLayout
+            android:id="@+id/custom_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:background="@color/ide_toolbar_bg"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="10dp">
+
+            <!-- Hamburger Menu Button -->
+            <ImageView
+                android:id="@+id/iv_menu_toggle"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:padding="8dp"
+                android:src="@drawable/ic_menu"
+                app:tint="@color/white"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Menu" />
+
+            <!-- App Title (e.g. Code4 - C++ / TermCode - C++) -->
+            <TextView
+                android:id="@+id/tv_project_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingStart="12dp"
+                android:text="Code Editor - C++"
+                android:textColor="@color/white"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:singleLine="true" />
+
+            <!-- PASTE Button (Blue Accent Text like reference) -->
+            <TextView
+                android:id="@+id/btn_toolbar_paste"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:paddingHorizontal="10dp"
+                android:text="PASTE"
+                android:textColor="@color/paste_blue"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <!-- Terminal Toggle Button -->
+            <LinearLayout
+                android:id="@+id/btn_toggle_terminal"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingHorizontal="7dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_terminal"
+                    app:tint="#80D8FF" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="TERM"
+                    android:textColor="#80D8FF"
+                    android:textSize="13.5sp"
+                    android:textStyle="bold"
+                    android:fontFamily="monospace" />
+            </LinearLayout>
+
+            <!-- RUN Button (Clean White Text like reference) -->
+            <TextView
+                android:id="@+id/btn_toolbar_run"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:paddingHorizontal="10dp"
+                android:text="RUN"
+                android:textColor="@color/run_white"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <!-- Save Icon Button (Floppy Disk) -->
+            <ImageView
+                android:id="@+id/btn_save"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:padding="9dp"
+                android:src="@drawable/ic_save"
+                app:tint="@color/white"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Save" />
+
+        </LinearLayout>
+
+        <!-- Horizontal Multi-File Open Tabs Bar (Spck Editor / VS Code Style) -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:background="#141414">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_editor_tabs"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:scrollbars="none" />
+
+            <TextView
+                android:id="@+id/tv_active_file"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:text="main.cpp"
+                android:textColor="#888888"
+                android:textSize="13sp"
+                android:fontFamily="monospace"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider_color" />
+
+        <!-- Code Editor Area (Full Height, Deep Dark Background) -->
+        <FrameLayout
+            android:id="@+id/editor_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@color/editor_bg">
+
+            <com.example.ui.LineNumberEditText
+                android:id="@+id/code_editor"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="top|start"
+                android:inputType="textMultiLine|textNoSuggestions"
+                android:hint="// Start coding here..."
+                android:textColorHint="#444444"
+                android:fontFamily="monospace"
+                android:textSize="14.5sp"
+                android:scrollbars="vertical|horizontal"
+                android:fadingEdge="none" />
+        </FrameLayout>
+
+        <!-- Two-Tier Bottom Accessory Bar (Exact Match to Reference Screenshot) -->
+        <LinearLayout
+            android:id="@+id/two_tier_bar_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Tier 1: Keywords Bar (Blue Text) -->
+            <HorizontalScrollView
+                android:id="@+id/scroll_keywords"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:background="@color/tier1_keywords_bg"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/ll_keywords"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="8dp" />
+            </HorizontalScrollView>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#222222" />
+
+            <!-- Tier 2: Symbols Bar (White Bold Text) -->
+            <HorizontalScrollView
+                android:id="@+id/scroll_symbols"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="@color/tier2_symbols_bg"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/ll_symbols"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="8dp" />
+            </HorizontalScrollView>
+
+        </LinearLayout>
+
+        <!-- Terminal Section (Collapsible / Expands on RUN) -->
+        <LinearLayout
+            android:id="@+id/terminal_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/terminal_bg"
+            android:visibility="gone">
+
+            <!-- Clean Terminal Header -->
+            <LinearLayout
+                android:id="@+id/terminal_header"
+                android:layout_width="match_parent"
+                android:layout_height="34dp"
+                android:background="@color/terminal_header_bg"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="12dp">
+
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:background="@drawable/bg_run_btn" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="TERMINAL"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:fontFamily="monospace" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" />
+
+                <!-- Clear Button -->
+                <TextView
+                    android:id="@+id/btn_term_clear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="10dp"
+                    android:background="@drawable/bg_symbol_btn"
+                    android:gravity="center"
+                    android:paddingHorizontal="10dp"
+                    android:text="CLEAR"
+                    android:textColor="#80D8FF"
+                    android:textSize="11sp"
+                    android:fontFamily="monospace"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <!-- Close Button -->
+                <ImageView
+                    android:id="@+id/iv_terminal_toggle"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:padding="3dp"
+                    android:src="@drawable/ic_close"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    app:tint="#CCCCCC"
+                    android:contentDescription="Close Terminal" />
+            </LinearLayout>
+
+            <!-- Terminal Output View -->
+            <com.example.terminal.TerminalView
+                android:id="@+id/terminal_view"
+                android:layout_width="match_parent"
+                android:layout_height="180dp" />
+
+            <!-- Interactive Terminal Command Input Row -->
+            <LinearLayout
+                android:id="@+id/terminal_input_row"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="#161616"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="10dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$ "
+                    android:textColor="#4CAF50"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:fontFamily="monospace" />
+
+                <EditText
+                    android:id="@+id/et_terminal_input"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:hint="Type command or input..."
+                    android:textColorHint="#555555"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    android:fontFamily="monospace"
+                    android:singleLine="true"
+                    android:imeOptions="actionSend" />
+
+                <ImageView
+                    android:id="@+id/btn_terminal_send"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_play"
+                    app:tint="@color/run_green"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Send" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Side Navigation Drawer (Project & File Explorer) -->
+    <LinearLayout
+        android:id="@+id/nav_view_container"
+        android:layout_width="290dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="#1E1E1E"
+        android:orientation="vertical">
+
+        <!-- Drawer Header with 3 Action Icons: Search, Add, More (Three-Dot) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:background="#181818"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp">
+
+            <TextView
+                android:id="@+id/tv_explorer_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="EXPLORER"
+                android:textColor="@color/white"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:fontFamily="monospace" />
+
+            <!-- Search Icon Button -->
+            <ImageView
+                android:id="@+id/btn_explorer_search"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:padding="7dp"
+                android:src="@drawable/ic_search"
+                app:tint="#CCCCCC"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Search Files" />
+
+            <!-- Add File/Folder Dropdown Button -->
+            <ImageView
+                android:id="@+id/btn_explorer_add"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:layout_marginStart="2dp"
+                android:padding="7dp"
+                android:src="@drawable/ic_new_item"
+                app:tint="#CCCCCC"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Create File or Folder" />
+
+            <!-- Three-Dot Menu Button -->
+            <ImageView
+                android:id="@+id/btn_explorer_more"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:layout_marginStart="2dp"
+                android:padding="7dp"
+                android:src="@drawable/ic_more_vert"
+                app:tint="#CCCCCC"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="More Options" />
+
+        </LinearLayout>
+
+        <!-- Collapsible Search Bar -->
+        <LinearLayout
+            android:id="@+id/layout_search_bar"
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:background="#222222"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_search"
+                app:tint="#777777" />
+
+            <EditText
+                android:id="@+id/et_explorer_search"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:background="@android:color/transparent"
+                android:hint="Search files &amp; folders..."
+                android:textColorHint="#666666"
+                android:textColor="@color/white"
+                android:textSize="13sp"
+                android:singleLine="true" />
+
+            <ImageView
+                android:id="@+id/btn_search_clear"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:padding="4dp"
+                android:src="@drawable/ic_close"
+                app:tint="#888888"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Close Search" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#282828" />
+
+        <!-- Subtitle: Active Folder / Root -->
+        <TextView
+            android:id="@+id/tv_project_subtitle"
+            android:layout_width="match_parent"
+            android:layout_height="26dp"
+            android:background="#1B1B1B"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:text="PROJECT ROOT"
+            android:textColor="#888888"
+            android:textSize="11sp"
+            android:fontFamily="monospace"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#252525" />
+
+        <!-- Hierarchical Explorer Tree RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_explorer"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="#1E1E1E"
+            android:scrollbars="vertical" />
+
+    </LinearLayout>
+
+</androidx.drawerlayout.widget.DrawerLayout>

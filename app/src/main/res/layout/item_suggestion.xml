@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="32dp"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingHorizontal="10dp"
+    android:background="?attr/selectableItemBackground">
+
+    <!-- VS Code Symbol Badge Icon -->
+    <TextView
+        android:id="@+id/tv_badge"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:background="@drawable/bg_vscode_badge"
+        android:gravity="center"
+        android:text="⬡"
+        android:textColor="#B180D7"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:fontFamily="sans-serif" />
+
+    <!-- Suggestion Name -->
+    <TextView
+        android:id="@+id/tv_suggestion_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="printf"
+        android:textColor="#D4D4D4"
+        android:textSize="13sp"
+        android:fontFamily="monospace"
+        android:singleLine="true" />
+
+    <!-- Spacer -->
+    <View
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_weight="1" />
+
+    <!-- VS Code Type / Detail Description -->
+    <TextView
+        android:id="@+id/tv_detail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="(method)"
+        android:textColor="#7F7F7F"
+        android:textSize="11sp"
+        android:fontFamily="monospace"
+        android:singleLine="true" />
+
+</LinearLayout>

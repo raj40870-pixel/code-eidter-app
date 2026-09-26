@@ -1,0 +1,14 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Left Curly Bracket in Gold -->
+    <path
+        android:fillColor="#CBCB41"
+        android:pathData="M9,4c-1.5,0 -2.5,1 -2.5,2.5v3.5c0,1 -0.5,1.5 -1.5,2 1,0.5 1.5,1 1.5,2v3.5C6.5,19 7.5,20 9,20h1v-1.8H9c-0.6,0 -1,-0.4 -1,-1v-3.7c0,-1 -0.8,-1.5 -1.7,-1.5 0.9,0 1.7,-0.5 1.7,-1.5V6.8c0,-0.6 0.4,-1 1,-1h1V4H9z" />
+    <!-- Right Curly Bracket in Gold -->
+    <path
+        android:fillColor="#CBCB41"
+        android:pathData="M15,4c1.5,0 2.5,1 2.5,2.5v3.5c0,1 0.5,1.5 1.5,2 -1,0.5 -1.5,1 -1.5,2v3.5c0,1.5 -1,2.5 -2.5,2.5h-1v-1.8h1c0.6,0 1,-0.4 1,-1v-3.7c0,-1 0.8,-1.5 1.7,-1.5 -0.9,0 -1.7,-0.5 -1.7,-1.5V6.8c0,-0.6 -0.4,-1 -1,-1h-1V4H15z" />
+</vector>
