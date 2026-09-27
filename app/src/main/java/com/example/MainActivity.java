@@ -1172,65 +1172,69 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private String getAutoInstallPrefix(String langName, String fileName) {
+    private String getMissingToolchainPackage(String langName, String fileName) {
         File usrBin = new File(getFilesDir(), "usr/bin");
         if ("C++".equalsIgnoreCase(langName) || "C".equalsIgnoreCase(langName)) {
             if (!new File(usrBin, "clang++").exists() && !new File(usrBin, "clang").exists()) {
-                binding.terminalView.appendOutput("\n\u001B[33m⚡ Clang compiler (C/C++) not yet installed. Auto-installing...\u001B[0m\n");
-                return "pkg install clang -y && ";
+                return "clang";
             }
         } else if ("Java".equalsIgnoreCase(langName)) {
             if (!new File(usrBin, "javac").exists()) {
-                binding.terminalView.appendOutput("\n\u001B[33m⚡ OpenJDK 17 (Java) not yet installed. Auto-installing...\u001B[0m\n");
-                return "pkg install openjdk-17 -y && ";
+                return "openjdk-17";
             }
         } else if ("Python".equalsIgnoreCase(langName)) {
-            if (!new File(usrBin, "python").exists()) {
-                binding.terminalView.appendOutput("\n\u001B[33m⚡ Python 3 not yet installed. Auto-installing...\u001B[0m\n");
-                return "pkg install python -y && ";
+            if (!new File(usrBin, "python").exists() && !new File(usrBin, "python3").exists()) {
+                return "python";
             }
         } else if ("JavaScript".equalsIgnoreCase(langName) || "Node.js".equalsIgnoreCase(langName) || fileName.endsWith(".js") || fileName.endsWith(".ts")) {
             if (!new File(usrBin, "node").exists()) {
-                binding.terminalView.appendOutput("\n\u001B[33m⚡ Node.js not yet installed. Auto-installing...\u001B[0m\n");
-                return "pkg install nodejs -y && ";
+                return "nodejs";
             }
         } else if ("Go".equalsIgnoreCase(langName)) {
             if (!new File(usrBin, "go").exists()) {
-                binding.terminalView.appendOutput("\n\u001B[33m⚡ Go (Golang) not yet installed. Auto-installing...\u001B[0m\n");
-                return "pkg install golang -y && ";
+                return "golang";
             }
         } else if ("Rust".equalsIgnoreCase(langName)) {
             if (!new File(usrBin, "rustc").exists()) {
-                binding.terminalView.appendOutput("\n\u001B[33m⚡ Rust compiler (rustc) not yet installed. Auto-installing...\u001B[0m\n");
-                return "pkg install rust -y && ";
+                return "rust";
             }
         } else if ("Kotlin".equalsIgnoreCase(langName)) {
             if (!new File(usrBin, "kotlinc").exists()) {
-                binding.terminalView.appendOutput("\n\u001B[33m⚡ Kotlin compiler not yet installed. Auto-installing...\u001B[0m\n");
-                return "pkg install kotlin -y && ";
+                return "kotlin";
             }
         } else if ("C#".equalsIgnoreCase(langName)) {
-            if (!new File(usrBin, "mono").exists()) {
-                binding.terminalView.appendOutput("\n\u001B[33m⚡ C# Mono compiler not yet installed. Auto-installing...\u001B[0m\n");
-                return "pkg install mono -y && ";
+            if (!new File(usrBin, "mono").exists() && !new File(usrBin, "mcs").exists()) {
+                return "mono";
             }
         } else if ("PHP".equalsIgnoreCase(langName)) {
             if (!new File(usrBin, "php").exists()) {
-                binding.terminalView.appendOutput("\n\u001B[33m⚡ PHP not yet installed. Auto-installing...\u001B[0m\n");
-                return "pkg install php -y && ";
+                return "php";
             }
         } else if ("Ruby".equalsIgnoreCase(langName)) {
             if (!new File(usrBin, "ruby").exists()) {
-                binding.terminalView.appendOutput("\n\u001B[33m⚡ Ruby not yet installed. Auto-installing...\u001B[0m\n");
-                return "pkg install ruby -y && ";
+                return "ruby";
             }
         } else if ("Lua".equalsIgnoreCase(langName)) {
             if (!new File(usrBin, "lua").exists() && !new File(usrBin, "lua54").exists()) {
-                binding.terminalView.appendOutput("\n\u001B[33m⚡ Lua not yet installed. Auto-installing...\u001B[0m\n");
-                return "pkg install lua54 -y && ";
+                return "lua54";
             }
         }
-        return "";
+        return null;
+    }
+
+    private String getToolchainDisplayName(String langName, String fileName) {
+        if ("C++".equalsIgnoreCase(langName) || "C".equalsIgnoreCase(langName)) return "Clang Compiler (C/C++)";
+        if ("Java".equalsIgnoreCase(langName)) return "OpenJDK 17 (Java)";
+        if ("Python".equalsIgnoreCase(langName)) return "Python 3 Runtime";
+        if ("JavaScript".equalsIgnoreCase(langName) || "Node.js".equalsIgnoreCase(langName) || fileName.endsWith(".js") || fileName.endsWith(".ts")) return "Node.js Runtime";
+        if ("Go".equalsIgnoreCase(langName)) return "Go (Golang)";
+        if ("Rust".equalsIgnoreCase(langName)) return "Rust Compiler (rustc)";
+        if ("Kotlin".equalsIgnoreCase(langName)) return "Kotlin Compiler";
+        if ("C#".equalsIgnoreCase(langName)) return "C# Mono Compiler";
+        if ("PHP".equalsIgnoreCase(langName)) return "PHP Interpreter";
+        if ("Ruby".equalsIgnoreCase(langName)) return "Ruby Interpreter";
+        if ("Lua".equalsIgnoreCase(langName)) return "Lua Interpreter";
+        return langName + " Toolchain";
     }
 
     private void executeInTermux(String workingDir, String fileName, File localFile) {
@@ -1248,11 +1252,14 @@ public class MainActivity extends AppCompatActivity {
         // 2. Special handling for Full-Stack Node.js Projects
         if (new File(workingDir, "package.json").exists()) {
             File usrBin = new File(getFilesDir(), "usr/bin");
-            StringBuilder fsCmd = new StringBuilder();
             if (!new File(usrBin, "node").exists()) {
-                binding.terminalView.appendOutput("\n\u001B[33m[1/2] 📦 Node.js not yet installed. Auto-installing...\u001B[0m\n");
-                fsCmd.append("pkg install nodejs -y && ");
+                binding.terminalView.appendOutput("\n\u001B[33m⚠️ Node.js is required for full-stack projects, but is not installed.\u001B[0m\n");
+                binding.terminalView.appendOutput("\u001B[36m👉 Running installation command in terminal: pkg install nodejs\u001B[0m\n");
+                binding.terminalView.appendOutput("\u001B[32m$ pkg install nodejs\u001B[0m\n");
+                runTerminalCommand("pkg install nodejs", workingDir);
+                return;
             }
+            StringBuilder fsCmd = new StringBuilder();
             if (!new File(workingDir, "node_modules").exists()) {
                 fsCmd.append("npm install && ");
             }
@@ -1262,10 +1269,21 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        // 3. Check if required compiler/runtime is installed; if missing, run command in terminal and STOP
+        String missingPkg = getMissingToolchainPackage(langName, fileName);
+        if (missingPkg != null) {
+            String toolName = getToolchainDisplayName(langName, fileName);
+            binding.terminalView.appendOutput("\n\u001B[33m⚠️ " + toolName + " is not installed yet!\u001B[0m\n");
+            binding.terminalView.appendOutput("\u001B[36m👉 Running installation command in terminal: pkg install " + missingPkg + "\u001B[0m\n");
+            binding.terminalView.appendOutput("\u001B[32m$ pkg install " + missingPkg + "\u001B[0m\n");
+            runTerminalCommand("pkg install " + missingPkg, workingDir);
+            return;
+        }
+
         String runFile = fileName;
         String runOutput = outputBinary;
 
-        // 3. Smart Java class name synchronization
+        // 4. Smart Java class name synchronization
         if ("Java".equalsIgnoreCase(langName)) {
             String editorText = binding.codeEditor.getText().toString();
             java.util.regex.Matcher m = java.util.regex.Pattern.compile("public\\s+class\\s+([A-Za-z0-9_]+)").matcher(editorText);
@@ -1284,13 +1302,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        // 4. Auto-install toolchain if missing, then compile and run
-        String autoInstallPrefix = getAutoInstallPrefix(langName, fileName);
+        // 5. Toolchain verified -> Compile and Execute directly
         StringBuilder cmd = new StringBuilder();
-        if (!autoInstallPrefix.isEmpty()) {
-            cmd.append(autoInstallPrefix);
-        }
-
         if (runner.getCompileCommand(runFile, runOutput) != null) {
             cmd.append(runner.getCompileCommand(runFile, runOutput))
                     .append(" && ")
@@ -1299,8 +1312,7 @@ public class MainActivity extends AppCompatActivity {
             cmd.append(runner.getRunCommand(runFile));
         }
 
-        String stepMsg = autoInstallPrefix.isEmpty() ? "⚙️ Executing " + runFile + "..." : "[2/2] ⚙️ Compiling & Executing " + runFile + "...";
-        binding.terminalView.appendOutput("\u001B[36m" + stepMsg + "\u001B[0m\n");
+        binding.terminalView.appendOutput("\u001B[36m⚙️ Compiling & Executing " + runFile + "...\u001B[0m\n");
         binding.terminalView.appendOutput("\u001B[32m$ " + cmd.toString() + "\u001B[0m\n");
         runTerminalCommand(cmd.toString(), workingDir);
 
@@ -1314,13 +1326,18 @@ public class MainActivity extends AppCompatActivity {
 
     private void handleHtmlExecution(String workingDir, String fileName, File localFile) {
         File usrBin = new File(getFilesDir(), "usr/bin");
-        StringBuilder webCmd = new StringBuilder();
-        if (!new File(usrBin, "python").exists()) {
-            binding.terminalView.appendOutput("\n\u001B[33m[1/2] 📦 Python (needed for local server) not yet installed. Auto-installing...\u001B[0m\n");
-            webCmd.append("pkg install python -y && ");
+        
+        // If Python is not installed, prompt user and run installation command in terminal
+        if (!new File(usrBin, "python").exists() && !new File(usrBin, "python3").exists()) {
+            binding.terminalView.appendOutput("\n\u001B[33m⚠️ Python is required to host the Local Web Server, but is not installed.\u001B[0m\n");
+            binding.terminalView.appendOutput("\u001B[36m👉 Running installation command in terminal: pkg install python\u001B[0m\n");
+            binding.terminalView.appendOutput("\u001B[32m$ pkg install python\u001B[0m\n");
+            runTerminalCommand("pkg install python", workingDir);
+            return;
         }
 
-        // Cleanly kill existing http.server and start persistent background daemon with nohup & disown
+        // Python IS installed: cleanly start background local web server
+        StringBuilder webCmd = new StringBuilder();
         webCmd.append("pkill -9 -f 'http.server' 2>/dev/null || true; ");
         webCmd.append("(nohup python -m http.server 8080 --bind 0.0.0.0 --directory \"").append(workingDir).append("\" </dev/null >/dev/null 2>&1 &)");
 
