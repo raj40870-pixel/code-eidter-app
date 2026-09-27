@@ -75,10 +75,7 @@ public class LocalTerminalSession implements TerminalSession {
             try {
                 // Determine shell to use
                 String shellPath = defaultShell;
-                File bash = new File("/data/data/com.termux/files/usr/bin/bash");
-                if (bash.exists() && bash.canExecute()) {
-                    shellPath = bash.getAbsolutePath();
-                } else if (shellPath == null || !new File(shellPath).exists()) {
+                if (shellPath == null || !new File(shellPath).exists()) {
                     shellPath = "/system/bin/sh";
                 }
 
@@ -92,9 +89,8 @@ public class LocalTerminalSession implements TerminalSession {
                         workDir = new File(defaultCwd);
                     }
                 }
-                if (workDir == null || !workDir.exists()) {
-                    workDir = new File("/data/data/com.termux/files/home");
-                    if (!workDir.exists()) workDir.mkdirs();
+                if (workDir != null && !workDir.exists()) {
+                    workDir.mkdirs();
                 }
 
                 ProcessBuilder pb = new ProcessBuilder(shellPath, "-c", command);

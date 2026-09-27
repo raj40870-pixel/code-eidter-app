@@ -124,6 +124,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupTerminal() {
+        termuxEnv.clearAptLocks();
         terminalSession = new LocalTerminalSession(
                 termuxEnv.getDefaultShell(),
                 termuxEnv.getHomePath(),
@@ -140,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         binding.btnTermClear.setOnClickListener(v -> {
+            termuxEnv.clearAptLocks();
             if (terminalSession != null) terminalSession.stop();
             binding.terminalView.clear();
         });
@@ -169,6 +171,9 @@ public class MainActivity extends AppCompatActivity {
                 } else if (input.equalsIgnoreCase("clear")) {
                     binding.terminalView.clear();
                 } else {
+                    if (input.startsWith("pkg ") || input.startsWith("apt ") || input.startsWith("apt-get ") || input.startsWith("dpkg ")) {
+                        termuxEnv.clearAptLocks();
+                    }
                     binding.terminalView.appendOutput("\u001B[32m$ " + input + "\u001B[0m\n");
                     runTerminalCommand(input, null);
                 }
@@ -178,6 +183,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void runTerminalCommand(String command, String workingDir) {
+        if (command != null && (command.contains("pkg ") || command.contains("apt ") || command.contains("dpkg "))) {
+            termuxEnv.clearAptLocks();
+        }
         if (terminalSession != null) {
             terminalSession.execute(command, workingDir, null);
         }
@@ -744,6 +752,7 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     if (progress.isShowing()) progress.dismiss();
                     Toast.makeText(MainActivity.this, "Termux Linux environment installed successfully!", Toast.LENGTH_LONG).show();
+                    termuxEnv.clearAptLocks();
                     if (terminalSession != null) {
                         terminalSession.restart(
                                 termuxEnv.getDefaultShell(),
@@ -1265,10 +1274,11 @@ public class MainActivity extends AppCompatActivity {
         if (new File(workingDir, "package.json").exists()) {
             File usrBin = new File(getFilesDir(), "usr/bin");
             if (!new File(usrBin, "node").exists()) {
+                termuxEnv.clearAptLocks();
                 binding.terminalView.appendOutput("\n\u001B[33m⚠️ Node.js is required for full-stack projects, but is not installed.\u001B[0m\n");
                 binding.terminalView.appendOutput("\u001B[36m👉 Running installation command in terminal: pkg install nodejs\u001B[0m\n");
                 binding.terminalView.appendOutput("\u001B[32m$ pkg install nodejs\u001B[0m\n");
-                runTerminalCommand("pkg install nodejs", workingDir);
+                runTerminalCommand("rm -f $PREFIX/var/lib/dpkg/lock* $PREFIX/var/lib/apt/lists/lock* $PREFIX/var/cache/apt/archives/lock* 2>/dev/null; dpkg --configure -a 2>/dev/null; pkg install nodejs", workingDir);
                 return;
             }
             StringBuilder fsCmd = new StringBuilder();
@@ -1284,11 +1294,12 @@ public class MainActivity extends AppCompatActivity {
         // 3. Check if required compiler/runtime is installed; if missing, run command in terminal and STOP
         String missingPkg = getMissingToolchainPackage(langName, fileName);
         if (missingPkg != null) {
+            termuxEnv.clearAptLocks();
             String toolName = getToolchainDisplayName(langName, fileName);
             binding.terminalView.appendOutput("\n\u001B[33m⚠️ " + toolName + " is not installed yet!\u001B[0m\n");
             binding.terminalView.appendOutput("\u001B[36m👉 Running installation command in terminal: pkg install " + missingPkg + "\u001B[0m\n");
             binding.terminalView.appendOutput("\u001B[32m$ pkg install " + missingPkg + "\u001B[0m\n");
-            runTerminalCommand("pkg install " + missingPkg, workingDir);
+            runTerminalCommand("rm -f $PREFIX/var/lib/dpkg/lock* $PREFIX/var/lib/apt/lists/lock* $PREFIX/var/cache/apt/archives/lock* 2>/dev/null; dpkg --configure -a 2>/dev/null; pkg install " + missingPkg, workingDir);
             return;
         }
 
@@ -1341,10 +1352,11 @@ public class MainActivity extends AppCompatActivity {
         
         // 1. If Python is not installed, prompt user and run installation command in terminal
         if (!new File(usrBin, "python").exists() && !new File(usrBin, "python3").exists()) {
+            termuxEnv.clearAptLocks();
             binding.terminalView.appendOutput("\n\u001B[33m⚠️ Python is not installed! Python is required to host the Local Web Server for HTML, CSS & JavaScript projects.\u001B[0m\n");
             binding.terminalView.appendOutput("\u001B[36m👉 Running installation command in terminal: pkg install python\u001B[0m\n");
             binding.terminalView.appendOutput("\u001B[32m$ pkg install python\u001B[0m\n");
-            runTerminalCommand("pkg install python", workingDir);
+            runTerminalCommand("rm -f $PREFIX/var/lib/dpkg/lock* $PREFIX/var/lib/apt/lists/lock* $PREFIX/var/cache/apt/archives/lock* 2>/dev/null; dpkg --configure -a 2>/dev/null; pkg install python", workingDir);
             return;
         }
 

@@ -114,4 +114,37 @@ public class TermuxEnvironment {
         }
         return "pkg install " + language.toLowerCase();
     }
+
+    public void clearAptLocks() {
+        File[] dirs = {
+            new File(usrDir, "var/lib/dpkg"),
+            new File(usrDir, "var/lib/apt/lists"),
+            new File(usrDir, "var/cache/apt/archives")
+        };
+        for (File d : dirs) {
+            if (d.exists() && d.isDirectory()) {
+                File[] files = d.listFiles((dir, name) -> name.startsWith("lock"));
+                if (files != null) {
+                    for (File f : files) {
+                        try {
+                            f.delete();
+                        } catch (Exception ignored) {}
+                    }
+                }
+            }
+        }
+        File[] locks = {
+            new File(usrDir, "var/lib/dpkg/lock-frontend"),
+            new File(usrDir, "var/lib/dpkg/lock"),
+            new File(usrDir, "var/lib/apt/lists/lock"),
+            new File(usrDir, "var/cache/apt/archives/lock")
+        };
+        for (File f : locks) {
+            try {
+                if (f.exists()) {
+                    f.delete();
+                }
+            } catch (Exception ignored) {}
+        }
+    }
 }

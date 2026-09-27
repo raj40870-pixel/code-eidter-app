@@ -19,10 +19,10 @@ With a native interactive terminal, dynamic file explorer, and smart automated t
 
 ## ✨ Key Features
 
-### ⚡ 1-Click Auto-Install & Run
-- Click **Run** and the IDE handles everything behind the scenes.
-- If a required compiler or runtime (e.g., `clang`, `openjdk-21`, `python`, `rust`) is missing, the IDE automatically runs `pkg install <package> -y` directly inside the integrated terminal session and immediately executes your code upon completion.
-- No disruptive error dialogs or manual setup required!
+### ⚡ Integrated Package Management
+- When you click **Run**, the IDE checks whether the required compiler or runtime (e.g., `clang`, `openjdk-17`, `python`, `rust`, `nodejs`) is installed.
+- If missing, the IDE automatically launches the installation command directly inside the integrated terminal session with stale dpkg lock prevention.
+- Full interactive control over packages with `pkg install`, `pkg search`, and `pkg upgrade`.
 
 ### 💻 Unbuffered Real-Time Interactive I/O (C/C++ Fix)
 - Solves the notorious standard library buffering issue where interactive prompts like `cout << "Enter a number: ";` or `printf(...)` would not appear until after user input was captured.
@@ -73,9 +73,9 @@ flowchart TD
     User([User writes code in Editor]) --> RunBtn[Click 'Run' Action]
     RunBtn --> Detect[Language & File Extension Detector]
     Detect --> CheckPkg{Toolchain Installed in Sysroot?}
-    CheckPkg -- No --> AutoInst[Auto-install: pkg install &lt;package&gt; -y]
+    CheckPkg -- No --> PromptInst[Terminal Command: pkg install &lt;package&gt;]
     CheckPkg -- Yes --> Exec
-    AutoInst --> Exec[Execute via Native PTY Terminal]
+    PromptInst --> TermView[Interactive Terminal Installation]
     Exec --> PTY[libtermux-exec.so + Pseudo-Terminal]
     PTY --> TermView[Interactive Terminal Output & stdin Input]
     Exec --> Sync[Auto-refresh File Explorer for .class / binaries]

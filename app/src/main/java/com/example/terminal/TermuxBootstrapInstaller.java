@@ -301,13 +301,14 @@ public class TermuxBootstrapInstaller {
             } catch (Exception ignored) {}
         }
 
+        File usrDir = new File(filesDir, "usr");
         // Setup .bashrc
         File bashrc = new File(homeDir, ".bashrc");
         if (!bashrc.exists()) {
             try (FileWriter fw = new FileWriter(bashrc)) {
                 fw.write("# Code Editor Environment\n");
                 fw.write("export PS1='\\[\\033[01;32m\\]code-editor\\[\\033[00m\\]:\\[\\033[01;34m\\]\\w\\[\\033[00m\\]\\$ '\n");
-                fw.write("export PREFIX=/data/data/com.termux/files/usr\n");
+                fw.write("export PREFIX=" + usrDir.getAbsolutePath() + "\n");
                 fw.write("export PATH=$PREFIX/bin:$PATH\n");
                 fw.write("alias ll='ls -la'\n");
                 fw.write("alias clear='printf \"\\033[2J\\033[H\"'\n");
