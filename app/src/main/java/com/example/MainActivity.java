@@ -25,15 +25,6 @@ import android.widget.PopupMenu;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.app.Dialog;
-import android.webkit.WebChromeClient;
-import android.webkit.WebResourceRequest;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ProgressBar;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -1168,6 +1159,27 @@ public class MainActivity extends AppCompatActivity {
             try (FileWriter fw = new FileWriter(syncedFile)) {
                 fw.write(binding.codeEditor.getText().toString());
             } catch (Exception ignored) {}
+
+            // Also copy sibling files (style.css, script.js, images) if available from SAF parent
+            if (currentFSNode != null && currentFSNode.getDocFile() != null && currentFSNode.getDocFile().getParentFile() != null) {
+                DocumentFile parentDoc = currentFSNode.getDocFile().getParentFile();
+                if (parentDoc != null && parentDoc.isDirectory()) {
+                    for (DocumentFile sibling : parentDoc.listFiles()) {
+                        if (sibling.isFile() && sibling.getName() != null && !sibling.getName().equals(fileName)) {
+                            File destSibling = new File(syncedDir, sibling.getName());
+                            try (InputStream in = getContentResolver().openInputStream(sibling.getUri());
+                                 OutputStream out = new java.io.FileOutputStream(destSibling)) {
+                                byte[] buf = new byte[4096];
+                                int len;
+                                while ((len = in.read(buf)) != -1) {
+                                    out.write(buf, 0, len);
+                                }
+                            } catch (Exception ignored) {}
+                        }
+                    }
+                }
+            }
+
             executeInTermux(syncedDir.getAbsolutePath(), fileName, syncedFile);
         }
     }
@@ -1327,120 +1339,42 @@ public class MainActivity extends AppCompatActivity {
     private void handleHtmlExecution(String workingDir, String fileName, File localFile) {
         File usrBin = new File(getFilesDir(), "usr/bin");
         
-        // If Python is not installed, prompt user and run installation command in terminal
+        // 1. If Python is not installed, prompt user and run installation command in terminal
         if (!new File(usrBin, "python").exists() && !new File(usrBin, "python3").exists()) {
-            binding.terminalView.appendOutput("\n\u001B[33m⚠️ Python is required to host the Local Web Server, but is not installed.\u001B[0m\n");
+            binding.terminalView.appendOutput("\n\u001B[33m⚠️ Python is not installed! Python is required to host the Local Web Server for HTML, CSS & JavaScript projects.\u001B[0m\n");
             binding.terminalView.appendOutput("\u001B[36m👉 Running installation command in terminal: pkg install python\u001B[0m\n");
             binding.terminalView.appendOutput("\u001B[32m$ pkg install python\u001B[0m\n");
             runTerminalCommand("pkg install python", workingDir);
             return;
         }
 
-        // Python IS installed: cleanly start background local web server
-        StringBuilder webCmd = new StringBuilder();
-        webCmd.append("pkill -9 -f 'http.server' 2>/dev/null || true; ");
-        webCmd.append("(nohup python -m http.server 8080 --bind 0.0.0.0 --directory \"").append(workingDir).append("\" </dev/null >/dev/null 2>&1 &)");
+        // 2. Python IS installed: stop any previous process so port 8080 is freed cleanly
+        if (terminalSession != null && terminalSession.isBusy()) {
+            terminalSession.stop();
+        }
 
-        binding.terminalView.appendOutput("\n\u001B[32m🌐 Local Web Server started at http://127.0.0.1:8080\u001B[0m\n");
+        // 3. Command to start the Python web server in the directory
+        String startServerCmd = "pkill -9 -f 'http.server' 2>/dev/null || true; python -m http.server 8080 --bind 0.0.0.0";
+        binding.terminalView.appendOutput("\n\u001B[32m🌐 Starting Local Web Server for HTML, CSS & JavaScript on port 8080...\u001B[0m\n");
         binding.terminalView.appendOutput("\u001B[36m📂 Serving folder: " + workingDir + "\u001B[0m\n");
-        runTerminalCommand(webCmd.toString(), workingDir);
+        binding.terminalView.appendOutput("\u001B[32m$ " + startServerCmd + "\u001B[0m\n");
+        runTerminalCommand(startServerCmd, workingDir);
 
-        // Open instant In-App Web Preview Dialog
-        showWebPreviewDialog(workingDir, fileName, localFile);
-    }
-
-    private void showWebPreviewDialog(String workingDir, String fileName, File localFile) {
-        Dialog dialog = new Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
-        dialog.setContentView(R.layout.dialog_web_preview);
-
-        TextView tvTitle = dialog.findViewById(R.id.tvPreviewTitle);
-        TextView tvUrl = dialog.findViewById(R.id.tvPreviewUrl);
-        ImageButton btnRefresh = dialog.findViewById(R.id.btnRefreshPreview);
-        Button btnOpenBrowser = dialog.findViewById(R.id.btnOpenExternalBrowser);
-        ImageButton btnClose = dialog.findViewById(R.id.btnClosePreview);
-        ProgressBar progressWeb = dialog.findViewById(R.id.progressWeb);
-        WebView webView = dialog.findViewById(R.id.webViewPreview);
-
-        tvTitle.setText("Web Preview: " + fileName);
-        String targetUrl = "http://127.0.0.1:8080/" + fileName;
-        tvUrl.setText(targetUrl);
-
-        WebSettings settings = webView.getSettings();
-        settings.setJavaScriptEnabled(true);
-        settings.setDomStorageEnabled(true);
-        settings.setAllowFileAccess(true);
-        settings.setAllowContentAccess(true);
-        settings.setAllowFileAccessFromFileURLs(true);
-        settings.setAllowUniversalAccessFromFileURLs(true);
-        settings.setDatabaseEnabled(true);
-        settings.setLoadsImagesAutomatically(true);
-        settings.setBuiltInZoomControls(true);
-        settings.setDisplayZoomControls(false);
-        settings.setUseWideViewPort(true);
-        settings.setLoadWithOverviewMode(true);
-
-        webView.setWebChromeClient(new WebChromeClient() {
-            @Override
-            public void onProgressChanged(WebView view, int newProgress) {
-                if (newProgress < 100) {
-                    progressWeb.setVisibility(View.VISIBLE);
-                    progressWeb.setProgress(newProgress);
-                } else {
-                    progressWeb.setVisibility(View.GONE);
-                }
-            }
-        });
-
-        webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                return false;
-            }
-
-            @Override
-            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-                loadLocalHtmlDirectly(webView, workingDir, fileName, localFile);
-            }
-        });
-
-        loadHtmlPreview(webView, workingDir, fileName, localFile, targetUrl);
-
-        btnRefresh.setOnClickListener(v -> {
-            loadHtmlPreview(webView, workingDir, fileName, localFile, targetUrl);
-            Toast.makeText(this, "Refreshed Preview", Toast.LENGTH_SHORT).show();
-        });
-
-        btnOpenBrowser.setOnClickListener(v -> {
-            try {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(targetUrl));
-                startActivity(browserIntent);
-            } catch (Exception e) {
-                Toast.makeText(this, "Could not open external browser: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        btnClose.setOnClickListener(v -> dialog.dismiss());
-        dialog.setOnDismissListener(d -> webView.destroy());
-
-        dialog.show();
-    }
-
-    private void loadHtmlPreview(WebView webView, String workingDir, String fileName, File localFile, String targetUrl) {
-        if (localFile != null && localFile.exists()) {
-            webView.loadUrl("file://" + localFile.getAbsolutePath());
-        } else {
-            String editorContent = binding.codeEditor.getText().toString();
-            webView.loadDataWithBaseURL("file://" + workingDir + "/", editorContent, "text/html", "UTF-8", null);
-        }
-    }
-
-    private void loadLocalHtmlDirectly(WebView webView, String workingDir, String fileName, File localFile) {
-        if (localFile != null && localFile.exists()) {
-            webView.loadUrl("file://" + localFile.getAbsolutePath());
-        } else {
-            String editorContent = binding.codeEditor.getText().toString();
-            webView.loadDataWithBaseURL("file://" + workingDir + "/", editorContent, "text/html", "UTF-8", null);
-        }
+        // 4. Open dialog offering to open in phone browser
+        String targetUrl = "http://127.0.0.1:8080/" + (fileName.equalsIgnoreCase("index.html") ? "" : fileName);
+        new AlertDialog.Builder(this)
+                .setTitle("🌐 Localhost Server Running")
+                .setMessage("Your HTML, CSS & JavaScript website server is live at:\nhttp://127.0.0.1:8080\n\nOpen in phone browser?")
+                .setPositiveButton("Open Browser", (d, w) -> {
+                    try {
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(targetUrl));
+                        startActivity(browserIntent);
+                    } catch (Exception e) {
+                        Toast.makeText(this, "Could not open browser: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("Close", null)
+                .show();
     }
 
     @Override
