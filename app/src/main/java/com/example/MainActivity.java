@@ -1371,7 +1371,7 @@ public class MainActivity extends AppCompatActivity {
 
         // 2. Python IS installed: start persistent background local server
         String startServerCmd = "pkill -9 -f 'http.server' 2>/dev/null || true; (nohup python -m http.server 8080 --directory \"" + workingDir + "\" </dev/null >/dev/null 2>&1 &)";
-        binding.terminalView.appendOutput("\n\u001B[32m🌐 Localhost Web Server live at http://127.0.0.1:8080\u001B[0m\n");
+        binding.terminalView.appendOutput("\n\u001B[32m🌐 Localhost Web Server live at http://localhost:8080\u001B[0m\n");
         binding.terminalView.appendOutput("\u001B[36m📂 Serving folder: " + workingDir + "\u001B[0m\n");
         binding.terminalView.appendOutput("\u001B[32m$ " + startServerCmd + "\u001B[0m\n");
         runTerminalCommand(startServerCmd, workingDir);
@@ -1387,12 +1387,13 @@ public class MainActivity extends AppCompatActivity {
         TextView tvTitle = dialog.findViewById(R.id.tvPreviewTitle);
         TextView tvUrl = dialog.findViewById(R.id.tvPreviewUrl);
         ImageButton btnRefresh = dialog.findViewById(R.id.btnRefreshPreview);
+        Button btnOpenBrowser = dialog.findViewById(R.id.btnOpenExternalBrowser);
         ImageButton btnClose = dialog.findViewById(R.id.btnClosePreview);
         ProgressBar progressWeb = dialog.findViewById(R.id.progressWeb);
         WebView webView = dialog.findViewById(R.id.webViewPreview);
 
         tvTitle.setText("Web Preview: " + fileName);
-        String targetUrl = "http://127.0.0.1:8080/" + (fileName.equalsIgnoreCase("index.html") ? "" : fileName);
+        String targetUrl = "http://localhost:8080/" + (fileName.equalsIgnoreCase("index.html") ? "" : fileName);
         tvUrl.setText(targetUrl);
 
         WebSettings settings = webView.getSettings();
@@ -1438,6 +1439,24 @@ public class MainActivity extends AppCompatActivity {
         btnRefresh.setOnClickListener(v -> {
             loadHtmlPreview(webView, workingDir, fileName, localFile, targetUrl);
             Toast.makeText(this, "Refreshed Preview", Toast.LENGTH_SHORT).show();
+        });
+
+        if (btnOpenBrowser != null) {
+            btnOpenBrowser.setOnClickListener(v -> {
+                try {
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(targetUrl));
+                    startActivity(browserIntent);
+                } catch (Exception e) {
+                    Toast.makeText(this, "Could not open browser: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+        tvUrl.setOnClickListener(v -> {
+            try {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(targetUrl));
+                startActivity(browserIntent);
+            } catch (Exception ignored) {}
         });
 
         btnClose.setOnClickListener(v -> dialog.dismiss());
