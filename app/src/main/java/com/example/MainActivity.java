@@ -1210,7 +1210,7 @@ public class MainActivity extends AppCompatActivity {
             }
         } else if ("Java".equalsIgnoreCase(langName)) {
             if (!new File(usrBin, "javac").exists()) {
-                return "openjdk-17";
+                return "openjdk-21";
             }
         } else if ("Python".equalsIgnoreCase(langName)) {
             if (!new File(usrBin, "python").exists() && !new File(usrBin, "python3").exists()) {
@@ -1254,7 +1254,7 @@ public class MainActivity extends AppCompatActivity {
 
     private String getToolchainDisplayName(String langName, String fileName) {
         if ("C++".equalsIgnoreCase(langName) || "C".equalsIgnoreCase(langName)) return "Clang Compiler (C/C++)";
-        if ("Java".equalsIgnoreCase(langName)) return "OpenJDK 17 (Java)";
+        if ("Java".equalsIgnoreCase(langName)) return "OpenJDK 21 (Java)";
         if ("Python".equalsIgnoreCase(langName)) return "Python 3 Runtime";
         if ("JavaScript".equalsIgnoreCase(langName) || "Node.js".equalsIgnoreCase(langName) || fileName.endsWith(".js") || fileName.endsWith(".ts")) return "Node.js Runtime";
         if ("Go".equalsIgnoreCase(langName)) return "Go (Golang)";
@@ -1370,7 +1370,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // 2. Python IS installed: start persistent background local server
-        String startServerCmd = "pkill -9 -f 'http.server' 2>/dev/null || true; (nohup python -m http.server 8080 --directory \"" + workingDir + "\" </dev/null >/dev/null 2>&1 &)";
+        String startServerCmd = "pkill -9 -f 'http.server' 2>/dev/null || true; (nohup python -m http.server 8080 --bind 0.0.0.0 --directory \"" + workingDir + "\" </dev/null >/dev/null 2>&1 &)";
         binding.terminalView.appendOutput("\n\u001B[32m🌐 Localhost Web Server live at http://localhost:8080\u001B[0m\n");
         binding.terminalView.appendOutput("\u001B[36m📂 Serving folder: " + workingDir + "\u001B[0m\n");
         binding.terminalView.appendOutput("\u001B[32m$ " + startServerCmd + "\u001B[0m\n");
@@ -1387,6 +1387,7 @@ public class MainActivity extends AppCompatActivity {
         TextView tvTitle = dialog.findViewById(R.id.tvPreviewTitle);
         TextView tvUrl = dialog.findViewById(R.id.tvPreviewUrl);
         ImageButton btnRefresh = dialog.findViewById(R.id.btnRefreshPreview);
+        Button btnOpenBrowser = dialog.findViewById(R.id.btnOpenExternalBrowser);
         ImageButton btnClose = dialog.findViewById(R.id.btnClosePreview);
         ProgressBar progressWeb = dialog.findViewById(R.id.progressWeb);
         WebView webView = dialog.findViewById(R.id.webViewPreview);
@@ -1438,6 +1439,24 @@ public class MainActivity extends AppCompatActivity {
         btnRefresh.setOnClickListener(v -> {
             loadHtmlPreview(webView, workingDir, fileName, localFile, targetUrl);
             Toast.makeText(this, "Refreshed Preview", Toast.LENGTH_SHORT).show();
+        });
+
+        if (btnOpenBrowser != null) {
+            btnOpenBrowser.setOnClickListener(v -> {
+                try {
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(targetUrl));
+                    startActivity(browserIntent);
+                } catch (Exception e) {
+                    Toast.makeText(this, "Could not open browser: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+        tvUrl.setOnClickListener(v -> {
+            try {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(targetUrl));
+                startActivity(browserIntent);
+            } catch (Exception ignored) {}
         });
 
         btnClose.setOnClickListener(v -> dialog.dismiss());

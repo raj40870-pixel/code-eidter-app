@@ -108,7 +108,7 @@ public class TermuxEnvironment {
         } else if ("Python".equalsIgnoreCase(language)) {
             return "pkg install python";
         } else if ("Java".equalsIgnoreCase(language)) {
-            return "pkg install openjdk-17";
+            return "pkg install openjdk-21";
         } else if ("Node.js".equalsIgnoreCase(language)) {
             return "pkg install nodejs";
         }
