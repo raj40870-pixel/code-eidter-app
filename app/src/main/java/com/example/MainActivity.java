@@ -1387,7 +1387,6 @@ public class MainActivity extends AppCompatActivity {
         TextView tvTitle = dialog.findViewById(R.id.tvPreviewTitle);
         TextView tvUrl = dialog.findViewById(R.id.tvPreviewUrl);
         ImageButton btnRefresh = dialog.findViewById(R.id.btnRefreshPreview);
-        Button btnOpenBrowser = dialog.findViewById(R.id.btnOpenExternalBrowser);
         ImageButton btnClose = dialog.findViewById(R.id.btnClosePreview);
         ProgressBar progressWeb = dialog.findViewById(R.id.progressWeb);
         WebView webView = dialog.findViewById(R.id.webViewPreview);
@@ -1439,24 +1438,6 @@ public class MainActivity extends AppCompatActivity {
         btnRefresh.setOnClickListener(v -> {
             loadHtmlPreview(webView, workingDir, fileName, localFile, targetUrl);
             Toast.makeText(this, "Refreshed Preview", Toast.LENGTH_SHORT).show();
-        });
-
-        if (btnOpenBrowser != null) {
-            btnOpenBrowser.setOnClickListener(v -> {
-                try {
-                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(targetUrl));
-                    startActivity(browserIntent);
-                } catch (Exception e) {
-                    Toast.makeText(this, "Could not open browser: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-
-        tvUrl.setOnClickListener(v -> {
-            try {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(targetUrl));
-                startActivity(browserIntent);
-            } catch (Exception ignored) {}
         });
 
         btnClose.setOnClickListener(v -> dialog.dismiss());
