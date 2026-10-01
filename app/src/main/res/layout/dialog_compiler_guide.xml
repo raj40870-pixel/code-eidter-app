@@ -13,7 +13,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="🛠️ Multi-Language Compilers &amp; Tools"
+            android:text="🛠️ Multi-Language Compilers &amp; Setup Guide"
             android:textColor="@color/white"
             android:textSize="17sp"
             android:textStyle="bold" />
@@ -22,11 +22,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Powered by TermCode GitHub CDN &amp; Termux: Any toolchain installs directly via GitHub or standard pkg install:"
+            android:text="All languages can be installed automatically by tapping 'Run' ▶️ or via the terminal using the commands below:"
             android:textColor="#AAAAAA"
             android:textSize="12sp" />
 
-        <!-- C / C++ Section -->
+        <!-- 1. C Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -38,10 +38,18 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="1. C / C++ (Clang &amp; Clang++)"
+                android:text="1. C (Default File: main.c)"
                 android:textColor="#00BFA5"
                 android:textSize="13sp"
                 android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Compiler: Clang (LLVM) with unbuffered interactive I/O"
+                android:textColor="#AAAAAA"
+                android:textSize="11sp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -58,13 +66,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Compile &amp; Run: clang++ main.cpp -o main &amp;&amp; ./main"
+                android:text="Compile &amp; Run: clang -Wall -O2 main.c -o main &amp;&amp; ./main"
                 android:textColor="#888888"
                 android:textSize="11sp"
                 android:fontFamily="monospace" />
         </LinearLayout>
 
-        <!-- Python Section -->
+        <!-- 2. C++ Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -76,10 +84,110 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="2. Python 3"
+                android:text="2. C++ (Default File: main.cpp)"
+                android:textColor="#26A69A"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Compiler: Clang++ (C++17/C++20) with unbuffered cin/cout"
+                android:textColor="#AAAAAA"
+                android:textSize="11sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:background="#181818"
+                android:padding="8dp"
+                android:text="pkg install clang"
+                android:textColor="#80D8FF"
+                android:textSize="12sp"
+                android:fontFamily="monospace" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Compile &amp; Run: clang++ -std=c++17 main.cpp -o main &amp;&amp; ./main"
+                android:textColor="#888888"
+                android:textSize="11sp"
+                android:fontFamily="monospace" />
+        </LinearLayout>
+
+        <!-- 3. C# Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#252525"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3. C# (Default File: Program.cs)"
+                android:textColor="#7986CB"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Compiler &amp; Runtime: Mono C# Compiler (mcs) &amp; Mono VM"
+                android:textColor="#AAAAAA"
+                android:textSize="11sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:background="#181818"
+                android:padding="8dp"
+                android:text="pkg install mono"
+                android:textColor="#80D8FF"
+                android:textSize="12sp"
+                android:fontFamily="monospace" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Compile &amp; Run: mcs Program.cs &amp;&amp; mono Program.exe"
+                android:textColor="#888888"
+                android:textSize="11sp"
+                android:fontFamily="monospace" />
+        </LinearLayout>
+
+        <!-- 4. Python Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#252525"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="4. Python (Default File: main.py)"
                 android:textColor="#FFD54F"
                 android:textSize="13sp"
                 android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Interpreter: Python 3.12+ with unbuffered execution (-u)"
+                android:textColor="#AAAAAA"
+                android:textSize="11sp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -96,13 +204,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Run: python main.py"
+                android:text="Run: python3 -u main.py"
                 android:textColor="#888888"
                 android:textSize="11sp"
                 android:fontFamily="monospace" />
         </LinearLayout>
 
-        <!-- JavaScript / Node.js Section -->
+        <!-- 5. Java Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -114,124 +222,18 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="3. JavaScript &amp; TypeScript (Node.js)"
-                android:textColor="#FFEE58"
-                android:textSize="13sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:background="#181818"
-                android:padding="8dp"
-                android:text="pkg install nodejs"
-                android:textColor="#80D8FF"
-                android:textSize="12sp"
-                android:fontFamily="monospace" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Run: node index.js"
-                android:textColor="#888888"
-                android:textSize="11sp"
-                android:fontFamily="monospace" />
-        </LinearLayout>
-
-        <!-- Rust Section -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="#252525"
-            android:orientation="vertical"
-            android:padding="12dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="4. Rust (Rustc &amp; Cargo)"
-                android:textColor="#FF7043"
-                android:textSize="13sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:background="#181818"
-                android:padding="8dp"
-                android:text="pkg install rust"
-                android:textColor="#80D8FF"
-                android:textSize="12sp"
-                android:fontFamily="monospace" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Compile &amp; Run: rustc main.rs &amp;&amp; ./main"
-                android:textColor="#888888"
-                android:textSize="11sp"
-                android:fontFamily="monospace" />
-        </LinearLayout>
-
-        <!-- Go Section -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="#252525"
-            android:orientation="vertical"
-            android:padding="12dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="5. Go (Golang)"
-                android:textColor="#4DD0E1"
-                android:textSize="13sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:background="#181818"
-                android:padding="8dp"
-                android:text="pkg install golang"
-                android:textColor="#80D8FF"
-                android:textSize="12sp"
-                android:fontFamily="monospace" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Run: go run main.go"
-                android:textColor="#888888"
-                android:textSize="11sp"
-                android:fontFamily="monospace" />
-        </LinearLayout>
-
-        <!-- Java Section -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="#252525"
-            android:orientation="vertical"
-            android:padding="12dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="6. Java (OpenJDK 21)"
+                android:text="5. Java (Default File: Main.java)"
                 android:textColor="#EF5350"
                 android:textSize="13sp"
                 android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Compiler &amp; Runtime: OpenJDK 21 LTS with auto class sync"
+                android:textColor="#AAAAAA"
+                android:textSize="11sp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -254,7 +256,7 @@
                 android:fontFamily="monospace" />
         </LinearLayout>
 
-        <!-- Ruby Section -->
+        <!-- 6. JavaScript Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -266,10 +268,18 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="7. Ruby"
-                android:textColor="#E57373"
+                android:text="6. JavaScript (Default File: main.js)"
+                android:textColor="#FFEE58"
                 android:textSize="13sp"
                 android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Engine: Node.js V8 Runtime (ES6+ support)"
+                android:textColor="#AAAAAA"
+                android:textSize="11sp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -277,7 +287,7 @@
                 android:layout_marginTop="6dp"
                 android:background="#181818"
                 android:padding="8dp"
-                android:text="pkg install ruby"
+                android:text="pkg install nodejs"
                 android:textColor="#80D8FF"
                 android:textSize="12sp"
                 android:fontFamily="monospace" />
@@ -286,13 +296,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Run: ruby script.rb"
+                android:text="Run: node main.js"
                 android:textColor="#888888"
                 android:textSize="11sp"
                 android:fontFamily="monospace" />
         </LinearLayout>
 
-        <!-- PHP Section -->
+        <!-- 7. TypeScript Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -304,10 +314,18 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="8. PHP"
-                android:textColor="#9FA8DA"
+                android:text="7. TypeScript (Default File: main.ts)"
+                android:textColor="#42A5F5"
                 android:textSize="13sp"
                 android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Engine: TypeScript execution on Node.js"
+                android:textColor="#AAAAAA"
+                android:textSize="11sp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -315,7 +333,7 @@
                 android:layout_marginTop="6dp"
                 android:background="#181818"
                 android:padding="8dp"
-                android:text="pkg install php"
+                android:text="pkg install nodejs&#10;npm install -g ts-node typescript"
                 android:textColor="#80D8FF"
                 android:textSize="12sp"
                 android:fontFamily="monospace" />
@@ -324,13 +342,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Run: php script.php"
+                android:text="Run: npx ts-node main.ts"
                 android:textColor="#888888"
                 android:textSize="11sp"
                 android:fontFamily="monospace" />
         </LinearLayout>
 
-        <!-- Lua Section -->
+        <!-- 8. Go Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -342,10 +360,18 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="9. Lua"
-                android:textColor="#81D4FA"
+                android:text="8. Go (Default File: main.go)"
+                android:textColor="#4DD0E1"
                 android:textSize="13sp"
                 android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Compiler: Official Go (Golang) Toolchain"
+                android:textColor="#AAAAAA"
+                android:textSize="11sp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -353,7 +379,7 @@
                 android:layout_marginTop="6dp"
                 android:background="#181818"
                 android:padding="8dp"
-                android:text="pkg install lua54"
+                android:text="pkg install golang"
                 android:textColor="#80D8FF"
                 android:textSize="12sp"
                 android:fontFamily="monospace" />
@@ -362,13 +388,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Run: lua script.lua"
+                android:text="Run: go run main.go"
                 android:textColor="#888888"
                 android:textSize="11sp"
                 android:fontFamily="monospace" />
         </LinearLayout>
 
-        <!-- Kotlin Section -->
+        <!-- 9. Rust Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -380,10 +406,64 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="10. Kotlin"
+                android:text="9. Rust (Default File: main.rs)"
+                android:textColor="#FF7043"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Compiler: Rustc &amp; Cargo (LLVM native binary compiler)"
+                android:textColor="#AAAAAA"
+                android:textSize="11sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:background="#181818"
+                android:padding="8dp"
+                android:text="pkg install rust"
+                android:textColor="#80D8FF"
+                android:textSize="12sp"
+                android:fontFamily="monospace" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Compile &amp; Run: rustc main.rs -o main &amp;&amp; ./main"
+                android:textColor="#888888"
+                android:textSize="11sp"
+                android:fontFamily="monospace" />
+        </LinearLayout>
+
+        <!-- 10. Kotlin Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#252525"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="10. Kotlin (Default File: Main.kt)"
                 android:textColor="#BA68C8"
                 android:textSize="13sp"
                 android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Compiler: Kotlinc (JVM bytecode runner)"
+                android:textColor="#AAAAAA"
+                android:textSize="11sp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -400,13 +480,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Run: kotlinc main.kt -include-runtime -d app.jar &amp;&amp; java -jar app.jar"
+                android:text="Compile &amp; Run: kotlinc Main.kt -include-runtime -d app.jar &amp;&amp; java -jar app.jar"
                 android:textColor="#888888"
                 android:textSize="11sp"
                 android:fontFamily="monospace" />
         </LinearLayout>
 
-        <!-- C# Mono Section -->
+        <!-- 11. PHP Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -418,10 +498,18 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="11. C# (.NET / Mono)"
-                android:textColor="#7986CB"
+                android:text="11. PHP (Default File: index.php)"
+                android:textColor="#9FA8DA"
                 android:textSize="13sp"
                 android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Interpreter: PHP 8+ CLI"
+                android:textColor="#AAAAAA"
+                android:textSize="11sp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -429,7 +517,7 @@
                 android:layout_marginTop="6dp"
                 android:background="#181818"
                 android:padding="8dp"
-                android:text="pkg install mono"
+                android:text="pkg install php"
                 android:textColor="#80D8FF"
                 android:textSize="12sp"
                 android:fontFamily="monospace" />
@@ -438,13 +526,105 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Run: mcs Program.cs &amp;&amp; mono Program.exe"
+                android:text="Run: php index.php"
                 android:textColor="#888888"
                 android:textSize="11sp"
                 android:fontFamily="monospace" />
         </LinearLayout>
 
-        <!-- HTML / CSS / JS Web Server Section -->
+        <!-- 12. Ruby Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#252525"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="12. Ruby (Default File: main.rb)"
+                android:textColor="#E57373"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Interpreter: Ruby 3+ MRI"
+                android:textColor="#AAAAAA"
+                android:textSize="11sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:background="#181818"
+                android:padding="8dp"
+                android:text="pkg install ruby"
+                android:textColor="#80D8FF"
+                android:textSize="12sp"
+                android:fontFamily="monospace" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Run: ruby main.rb"
+                android:textColor="#888888"
+                android:textSize="11sp"
+                android:fontFamily="monospace" />
+        </LinearLayout>
+
+        <!-- 13. Lua Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#252525"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="13. Lua (Default File: main.lua)"
+                android:textColor="#81D4FA"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Interpreter: Lua 5.4 Standalone"
+                android:textColor="#AAAAAA"
+                android:textSize="11sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:background="#181818"
+                android:padding="8dp"
+                android:text="pkg install lua54"
+                android:textColor="#80D8FF"
+                android:textSize="12sp"
+                android:fontFamily="monospace" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Run: lua main.lua"
+                android:textColor="#888888"
+                android:textSize="11sp"
+                android:fontFamily="monospace" />
+        </LinearLayout>
+
+        <!-- 14. HTML & CSS Web Development Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -456,7 +636,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="🌐 12. HTML, CSS &amp; JavaScript Web Server"
+                android:text="🌐 14. HTML &amp; CSS Web Development (index.html, style.css)"
                 android:textColor="#4FC3F7"
                 android:textSize="13sp"
                 android:textStyle="bold" />
@@ -465,7 +645,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Host and view your website locally using Python:"
+                android:text="Integrates HTML, CSS (style.css), &amp; JavaScript in one web project with instant In-App Live Browser Web Preview dialog:"
                 android:textColor="#AAAAAA"
                 android:textSize="11sp" />
 
@@ -484,12 +664,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Then open your phone browser at http://localhost:8080"
+                android:text="Tap 'Run' on index.html to boot the local server and launch the live in-app preview."
                 android:textColor="#81C784"
                 android:textSize="11sp" />
         </LinearLayout>
 
-        <!-- Full-Stack Node.js Projects Section -->
+        <!-- 15. Full-Stack Node.js Projects Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -501,7 +681,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="🚀 13. Full-Stack Web Projects (Node.js &amp; Express)"
+                android:text="🚀 15. Full-Stack Web Projects (package.json / Node.js &amp; Express)"
                 android:textColor="#66BB6A"
                 android:textSize="13sp"
                 android:textStyle="bold" />
@@ -510,7 +690,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Run complete backend and web application folders:"
+                android:text="Run complete backend and web application folders with automatic npm install and npm start:"
                 android:textColor="#AAAAAA"
                 android:textSize="11sp" />
 
@@ -529,12 +709,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Open browser at http://localhost:3000 to interact with your server"
+                android:text="Automatically detects package.json and executes npm start in your terminal."
                 android:textColor="#81C784"
                 android:textSize="11sp" />
         </LinearLayout>
 
-        <!-- General Package Search & Install Section -->
+        <!-- 16. General Package Search & Install Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

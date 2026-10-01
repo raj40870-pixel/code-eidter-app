@@ -1115,7 +1115,29 @@ public class MainActivity extends AppCompatActivity {
     private void showAboutDialog() {
         new AlertDialog.Builder(this)
                 .setTitle("Code Editor v2.2")
-                .setMessage("A universal, multi-language mobile IDE powered by the Termux Linux environment.\n\n• Multi-File Horizontal Tab Bar (Spck Editor & VS Code style)\n• Authentic Language Logos & Badges (JS, TS, HTML, CSS, Java, Python, C++, Rust, Go)\n• Auto Boilerplate Starter Code for all languages\n• Universal Execution: Supports C, C++, Python, JavaScript/Node.js, Rust, Go, Java, Ruby, PHP, Lua, Shell, and any tool or package via 'pkg install'.\n• Built-in Termux Terminal with full package manager\n• Floating IntelliSense Auto-Complete\n• Hierarchical Project & Folder Explorer with Dual Coexistence\n• Full Phone Storage & SAF DocumentTree Two-Way Sync\n• Two-Tier Coding Accessory Bar")
+                .setMessage("A universal, multi-language standalone mobile IDE powered by an embedded Linux userland.\n\n" +
+                        "• Supported Languages & Compilers:\n" +
+                        "  - C (main.c - Clang)\n" +
+                        "  - C++ (main.cpp - Clang++)\n" +
+                        "  - C# (Program.cs - Mono)\n" +
+                        "  - Python (main.py - Python 3)\n" +
+                        "  - Java (Main.java - OpenJDK 21)\n" +
+                        "  - JavaScript (main.js - Node.js)\n" +
+                        "  - TypeScript (main.ts - Node.js)\n" +
+                        "  - Go (main.go - Golang Toolchain)\n" +
+                        "  - Rust (main.rs - Rustc & Cargo)\n" +
+                        "  - Kotlin (Main.kt - Kotlinc)\n" +
+                        "  - PHP (index.php - PHP 8+)\n" +
+                        "  - Ruby (main.rb - Ruby 3+)\n" +
+                        "  - Lua (main.lua - Lua 5.4)\n" +
+                        "  - HTML/CSS (index.html, style.css) with Live Browser Preview\n" +
+                        "  - Full-Stack Node.js Projects (package.json, npm start)\n\n" +
+                        "• Multi-File Horizontal Tab Bar (VS Code / Spck style)\n" +
+                        "• Authentic Language Vector Logos & Badges\n" +
+                        "• Zero-Config Automated Toolchain CDN Installer (0-100% Progress)\n" +
+                        "• Built-in Linux Terminal with full 'pkg' package manager\n" +
+                        "• Floating IntelliSense Auto-Complete & Syntax Highlighting\n" +
+                        "• Two-Tier Coding Accessory Bar (Keywords & Symbols)")
                 .setPositiveButton("OK", null)
                 .setNeutralButton("📜 Licenses", (dialog, which) -> showLicensesDialog())
                 .show();
