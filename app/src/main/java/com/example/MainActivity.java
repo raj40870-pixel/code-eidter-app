@@ -115,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
         setupDrawerAndExplorers();
         setupToolbarActions();
         setupTwoTierBottomBar();
+        com.example.util.AppSecurity.checkTamperAndEnforce(this);
         checkStoragePermissions();
         com.example.util.AppUpdateManager.checkForUpdates(this, false);
     }
