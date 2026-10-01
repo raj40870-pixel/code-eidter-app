@@ -36,6 +36,74 @@ public class TermuxEnvironment {
         if (!homeDir.exists()) homeDir.mkdirs();
         if (!tmpDir.exists()) tmpDir.mkdirs();
         if (!projectsDir.exists()) projectsDir.mkdirs();
+        setupDefaultScripts();
+    }
+
+    private void setupDefaultScripts() {
+        try {
+            File pkgFile = new File(binDir, "pkg");
+            if (!pkgFile.exists() || pkgFile.length() == 0) {
+                String pkgScript = "#!/bin/sh\n"
+                    + "CMD=\"$1\"\n"
+                    + "shift 1 2>/dev/null || true\n"
+                    + "case \"$CMD\" in\n"
+                    + "  install|i)\n"
+                    + "    TARGET=\"$1\"\n"
+                    + "    [ -z \"$TARGET\" ] && echo \"Usage: pkg install <package>\" && exit 1\n"
+                    + "    case \"$TARGET\" in\n"
+                    + "      node|nodejs|npm) TARGET=\"nodejs\" ;;\n"
+                    + "      py|python|python3) TARGET=\"python\" ;;\n"
+                    + "      clang|clang++|gcc|g++|c|cpp|c_cpp|make) TARGET=\"c_cpp\" ;;\n"
+                    + "      java|jdk|openjdk|openjdk-17|openjdk-21) TARGET=\"java\" ;;\n"
+                    + "      golang|go) TARGET=\"go\" ;;\n"
+                    + "      rust|rustc|cargo) TARGET=\"rust\" ;;\n"
+                    + "      kotlin|kotlinc) TARGET=\"kotlin\" ;;\n"
+                    + "      mono|cs|csharp) TARGET=\"csharp\" ;;\n"
+                    + "      php|php8) TARGET=\"php\" ;;\n"
+                    + "      ruby|gem) TARGET=\"ruby\" ;;\n"
+                    + "      lua|lua54) TARGET=\"lua\" ;;\n"
+                    + "    esac\n"
+                    + "    echo \"==> TermCode Package Manager: Installing $TARGET...\"\n"
+                    + "    curl -sL https://raw.githubusercontent.com/raj40870-pixel/library/main/install.sh | sh -s \"$TARGET\"\n"
+                    + "    ;;\n"
+                    + "  search|list)\n"
+                    + "    echo \"Available packages: python, nodejs, c_cpp, java, go, rust, kotlin, csharp, php, ruby, lua, all\"\n"
+                    + "    ;;\n"
+                    + "  *) \n"
+                    + "    echo \"TermCode Package Manager\"\n"
+                    + "    echo \"Usage: pkg install <package_name|all>\"\n"
+                    + "    echo \"Example: pkg install nodejs\"\n"
+                    + "    echo \"         pkg install python\"\n"
+                    + "    echo \"         pkg install clang\"\n"
+                    + "    echo \"         pkg install all\"\n"
+                    + "    ;;\n"
+                    + "esac\n";
+                java.nio.file.Files.write(pkgFile.toPath(), pkgScript.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                pkgFile.setExecutable(true, false);
+                pkgFile.setReadable(true, false);
+            }
+
+            File installFile = new File(binDir, "install");
+            if (!installFile.exists() || installFile.length() == 0) {
+                String instScript = "#!/bin/sh\n"
+                    + "if [ \"$#\" -ge 1 ] && [ \"$1\" != \"-c\" ] && [ \"$1\" != \"-d\" ] && [ ! -f \"$1\" ]; then\n"
+                    + "  pkg install \"$@\"\n"
+                    + "  exit $?\n"
+                    + "fi\n"
+                    + "exec /system/bin/install \"$@\" 2>/dev/null || exit 1\n";
+                java.nio.file.Files.write(installFile.toPath(), instScript.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                installFile.setExecutable(true, false);
+                installFile.setReadable(true, false);
+            }
+
+            File aptFile = new File(binDir, "apt");
+            if (!aptFile.exists() || aptFile.length() == 0) {
+                String aptScript = "#!/bin/sh\npkg \"$@\"\n";
+                java.nio.file.Files.write(aptFile.toPath(), aptScript.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                aptFile.setExecutable(true, false);
+                aptFile.setReadable(true, false);
+            }
+        } catch (Exception ignored) {}
     }
 
     public Map<String, String> getEnvironment() {
@@ -69,6 +137,17 @@ public class TermuxEnvironment {
         } else {
             env.put("SHELL", "/system/bin/sh");
         }
+
+        File goDir = new File(libDir, "go");
+        if (goDir.exists()) {
+            env.put("GOROOT", goDir.getAbsolutePath());
+        }
+        File goPath = new File(homeDir, "go");
+        if (!goPath.exists()) goPath.mkdirs();
+        env.put("GOPATH", goPath.getAbsolutePath());
+        File goCache = new File(homeDir, ".cache/go-build");
+        if (!goCache.exists()) goCache.mkdirs();
+        env.put("GOCACHE", goCache.getAbsolutePath());
 
         return env;
     }
@@ -104,15 +183,15 @@ public class TermuxEnvironment {
 
     public String getInstallHelp(String language) {
         if ("C++".equalsIgnoreCase(language) || "C".equalsIgnoreCase(language)) {
-            return "pkg install clang\n(Or 'apt install clang')";
+            return "curl -sL https://raw.githubusercontent.com/raj40870-pixel/library/main/install.sh | sh -s c_cpp\n(Fallback: 'pkg install clang')";
         } else if ("Python".equalsIgnoreCase(language)) {
-            return "pkg install python";
+            return "curl -sL https://raw.githubusercontent.com/raj40870-pixel/library/main/install.sh | sh -s python\n(Fallback: 'pkg install python')";
         } else if ("Java".equalsIgnoreCase(language)) {
-            return "pkg install openjdk-21";
+            return "curl -sL https://raw.githubusercontent.com/raj40870-pixel/library/main/install.sh | sh -s java\n(Fallback: 'pkg install openjdk-21')";
         } else if ("Node.js".equalsIgnoreCase(language)) {
-            return "pkg install nodejs";
+            return "curl -sL https://raw.githubusercontent.com/raj40870-pixel/library/main/install.sh | sh -s nodejs\n(Fallback: 'pkg install nodejs')";
         }
-        return "pkg install " + language.toLowerCase();
+        return "curl -sL https://raw.githubusercontent.com/raj40870-pixel/library/main/install.sh | sh -s " + language.toLowerCase() + "\n(Fallback: 'pkg install " + language.toLowerCase() + "')";
     }
 
     public void clearAptLocks() {

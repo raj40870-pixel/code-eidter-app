@@ -34,9 +34,8 @@ public class TermuxBootstrapInstaller {
         File filesDir = context.getFilesDir();
         File usrBin = new File(filesDir, "usr/bin");
         File bash = new File(usrBin, "bash");
-        File apt = new File(usrBin, "apt");
-        File pkg = new File(usrBin, "pkg");
-        return (bash.exists() && bash.canExecute()) || (apt.exists()) || (pkg.exists());
+        // Real bash binary extracted from Termux bootstrap is ~800KB+
+        return bash.exists() && bash.canExecute() && bash.length() > 50000;
     }
 
     public static void checkAndMigrateIfExtractedInRoot(Context context) {
@@ -181,19 +180,38 @@ public class TermuxBootstrapInstaller {
             int count = 0;
 
             while ((entry = zis.getNextEntry()) != null) {
-                String name = entry.getName();
-                if (name.startsWith("./")) {
+                String name = entry.getName().replace('\\', '/');
+                while (name.startsWith("./")) {
                     name = name.substring(2);
+                }
+                while (name.startsWith("/")) {
+                    name = name.substring(1);
                 }
 
                 File destination = new File(targetDir, name);
                 if (entry.isDirectory()) {
+                    if (destination.exists() && !destination.isDirectory()) {
+                        try { Os.remove(destination.getAbsolutePath()); } catch (Exception ignored) {}
+                        destination.delete();
+                    }
                     destination.mkdirs();
                 } else {
                     File parent = destination.getParentFile();
-                    if (parent != null && !parent.exists()) {
-                        parent.mkdirs();
+                    if (parent != null) {
+                        if (parent.exists() && !parent.isDirectory()) {
+                            try { Os.remove(parent.getAbsolutePath()); } catch (Exception ignored) {}
+                            parent.delete();
+                        }
+                        if (!parent.exists()) {
+                            parent.mkdirs();
+                        }
                     }
+
+                    try {
+                        Os.remove(destination.getAbsolutePath());
+                    } catch (Exception ignored) {}
+                    destination.delete();
+
                     try (FileOutputStream fos = new FileOutputStream(destination)) {
                         int len;
                         while ((len = zis.read(buffer)) > 0) {

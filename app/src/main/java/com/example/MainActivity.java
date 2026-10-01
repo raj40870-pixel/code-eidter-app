@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
     private File currentFile;
     private FSNode currentFSNode;
     private boolean isUpdatingText = false;
+    private boolean isProjectInitialLoadDone = false;
 
     private LocalTerminalSession terminalSession;
     private TermuxEnvironment termuxEnv;
@@ -177,6 +178,21 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 if (input.equalsIgnoreCase("pkg setup") || input.equalsIgnoreCase("setup-termux") || input.equalsIgnoreCase("install-linux")) {
                     showBootstrapInstallDialog();
+                } else if (input.startsWith("pkg install") || input.startsWith("apt install") || input.startsWith("pkg i ")) {
+                    String[] parts = input.split("\\s+");
+                    String targetPkg = null;
+                    for (int i = 2; i < parts.length; i++) {
+                        if (!parts[i].startsWith("-")) {
+                            targetPkg = parts[i];
+                            break;
+                        }
+                    }
+                    if (targetPkg != null && !targetPkg.isEmpty()) {
+                        binding.terminalView.appendOutput("\u001B[32m$ " + input + "\u001B[0m\n");
+                        showToolchainInstallDialog(targetPkg, null);
+                    } else {
+                        binding.terminalView.appendOutput("\u001B[33mUsage: pkg install <package_name>\u001B[0m\n");
+                    }
                 } else if (input.equalsIgnoreCase("clear")) {
                     binding.terminalView.clear();
                 } else {
@@ -435,6 +451,25 @@ public class MainActivity extends AppCompatActivity {
 
         // Load project
         projectViewModel.getAllProjects().observe(this, projects -> {
+            if (isProjectInitialLoadDone) return;
+            isProjectInitialLoadDone = true;
+
+            // Check if user previously had a file open
+            String lastFilePath = prefs.getString("last_active_file_path", null);
+            if (lastFilePath != null) {
+                File lastFile = new File(lastFilePath);
+                if (lastFile.exists()) {
+                    File parent = lastFile.getParentFile();
+                    if (parent != null && parent.exists()) {
+                        currentProject = new Project(parent.getName(), "Auto", parent.getAbsolutePath());
+                        binding.tvProjectSubtitle.setText(parent.getName().toUpperCase());
+                        explorerAdapter.setRootDirectory(parent);
+                        loadFile(FSNode.fromFile(lastFile), true);
+                        return;
+                    }
+                }
+            }
+
             if (currentProject == null || currentProject.path.contains("Download") || !new File(currentProject.path).exists()) {
                 resetToCppStarter();
             } else {
@@ -682,8 +717,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void showMoreDropdown(View anchor) {
         PopupMenu popup = new PopupMenu(this, anchor);
+        boolean isLinuxInstalled = com.example.terminal.TermuxBootstrapInstaller.isInstalled(this);
         popup.getMenu().add(0, 1, 0, ">_ Open Terminal");
-        popup.getMenu().add(0, 2, 1, "⚡ Install Linux Compilers (Termux)");
+        popup.getMenu().add(0, 2, 1, isLinuxInstalled ? "⚡ Reinstall Linux Environment" : "⚡ Install Linux Environment");
         popup.getMenu().add(0, 3, 2, "⚙️ Editor Settings");
         popup.getMenu().add(0, 4, 3, "🛠️ Compiler Setup Guide");
         popup.getMenu().add(0, 5, 4, "📜 Open Source Licenses & Credits");
@@ -782,6 +818,62 @@ public class MainActivity extends AppCompatActivity {
                     new AlertDialog.Builder(MainActivity.this)
                             .setTitle("Installation Failed")
                             .setMessage("Error during installation:\n" + error + "\n\nPlease check your internet connection and try again.")
+                            .setPositiveButton("OK", null)
+                            .show();
+                });
+            }
+        });
+    }
+
+    private void showToolchainInstallDialog(String pkgOrTarget, Runnable onComplete) {
+        String displayName = com.example.terminal.ToolchainInstaller.getDisplayName(pkgOrTarget);
+        android.app.ProgressDialog progress = new android.app.ProgressDialog(this);
+        progress.setTitle("Installing " + displayName);
+        progress.setMessage("Connecting to GitHub CDN...");
+        progress.setProgressStyle(android.app.ProgressDialog.STYLE_HORIZONTAL);
+        progress.setMax(100);
+        progress.setCancelable(false);
+        progress.show();
+
+        binding.terminalSection.setVisibility(View.VISIBLE);
+        binding.terminalView.appendOutput("\n\u001B[36m==> TermCode Package Manager: Installing " + displayName + "...\u001B[0m\n");
+        binding.terminalView.appendOutput("\u001B[33mConnecting to TermCode GitHub CDN...\u001B[0m\n");
+
+        com.example.terminal.ToolchainInstaller.install(this, pkgOrTarget, new com.example.terminal.ToolchainInstaller.InstallCallback() {
+            @Override
+            public void onProgress(String status, int percentage) {
+                runOnUiThread(() -> {
+                    progress.setMessage(status);
+                    progress.setProgress(percentage);
+                });
+            }
+
+            @Override
+            public void onSuccess(String target, String name) {
+                runOnUiThread(() -> {
+                    progress.setProgress(100);
+                    progress.setMessage("Library is installed successfully!");
+                    binding.terminalView.appendOutput("\u001B[32m✔ Library is installed successfully!\u001B[0m\n");
+                    binding.terminalView.post(() -> binding.terminalView.fullScroll(View.FOCUS_DOWN));
+                    Toast.makeText(MainActivity.this, "Library is installed successfully!", Toast.LENGTH_SHORT).show();
+
+                    binding.terminalView.postDelayed(() -> {
+                        if (progress.isShowing()) progress.dismiss();
+                        if (onComplete != null) {
+                            onComplete.run();
+                        }
+                    }, 650);
+                });
+            }
+
+            @Override
+            public void onError(String target, String error) {
+                runOnUiThread(() -> {
+                    if (progress.isShowing()) progress.dismiss();
+                    binding.terminalView.appendOutput("\u001B[31m✘ Error installing " + displayName + ": " + error + "\u001B[0m\n");
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("Installation Failed")
+                            .setMessage("Failed to install " + displayName + ":\n" + error + "\n\nPlease check your internet connection and try again.")
                             .setPositiveButton("OK", null)
                             .show();
                 });
@@ -1050,6 +1142,11 @@ public class MainActivity extends AppCompatActivity {
         binding.tvProjectSubtitle.setText(project.name.toUpperCase());
         explorerAdapter.setRootDirectory(dir);
 
+        // If a file is ALREADY active in editor and exists, do NOT override it!
+        if (currentFSNode != null && currentFSNode.getFile() != null && currentFSNode.getFile().exists()) {
+            return;
+        }
+
         File[] files = dir.listFiles();
         if (files != null && files.length > 0) {
             for (File f : files) {
@@ -1087,9 +1184,18 @@ public class MainActivity extends AppCompatActivity {
     private void loadFile(FSNode node, boolean addTab) {
         if (node == null || node.isDirectory()) return;
 
+        // If clicking/loading the same file that is ALREADY loaded, just ensure tab is active
+        if (currentFSNode != null && currentFSNode.getKey().equals(node.getKey())) {
+            if (editorTabsAdapter != null) editorTabsAdapter.setActiveNode(node);
+            return;
+        }
+
         saveCurrentFile();
         currentFSNode = node;
         currentFile = node.getFile();
+        if (currentFile != null) {
+            prefs.edit().putString("last_active_file_path", currentFile.getAbsolutePath()).apply();
+        }
         binding.tvActiveFile.setText(node.getName());
         binding.tvActiveFile.setVisibility(View.GONE);
 
@@ -1267,6 +1373,21 @@ public class MainActivity extends AppCompatActivity {
         return langName + " Toolchain";
     }
 
+    private String getLibraryKey(String langName, String fileName) {
+        if ("C++".equalsIgnoreCase(langName) || "C".equalsIgnoreCase(langName)) return "c_cpp";
+        if ("Java".equalsIgnoreCase(langName)) return "java";
+        if ("Python".equalsIgnoreCase(langName)) return "python";
+        if ("JavaScript".equalsIgnoreCase(langName) || "Node.js".equalsIgnoreCase(langName) || fileName.endsWith(".js") || fileName.endsWith(".ts")) return "nodejs";
+        if ("Go".equalsIgnoreCase(langName)) return "go";
+        if ("Rust".equalsIgnoreCase(langName)) return "rust";
+        if ("Kotlin".equalsIgnoreCase(langName)) return "kotlin";
+        if ("C#".equalsIgnoreCase(langName)) return "csharp";
+        if ("PHP".equalsIgnoreCase(langName)) return "php";
+        if ("Ruby".equalsIgnoreCase(langName)) return "ruby";
+        if ("Lua".equalsIgnoreCase(langName)) return "lua";
+        return langName.toLowerCase();
+    }
+
     private void executeInTermux(String workingDir, String fileName, File localFile) {
         LanguageRunner runner = runManager.getRunnerForFile(fileName);
         String baseName = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf('.')) : fileName;
@@ -1285,9 +1406,9 @@ public class MainActivity extends AppCompatActivity {
             if (!new File(usrBin, "node").exists()) {
                 termuxEnv.clearAptLocks();
                 binding.terminalView.appendOutput("\n\u001B[33m⚠️ Node.js is required for full-stack projects, but is not installed.\u001B[0m\n");
-                binding.terminalView.appendOutput("\u001B[36m👉 Running installation command in terminal: pkg install nodejs\u001B[0m\n");
-                binding.terminalView.appendOutput("\u001B[32m$ pkg install nodejs\u001B[0m\n");
-                runTerminalCommand("rm -f $PREFIX/var/lib/dpkg/lock* $PREFIX/var/lib/apt/lists/lock* $PREFIX/var/cache/apt/archives/lock* 2>/dev/null; dpkg --configure -a 2>/dev/null; pkg install nodejs", workingDir);
+                showToolchainInstallDialog("nodejs", () -> {
+                    executeInTermux(workingDir, fileName, localFile);
+                });
                 return;
             }
             StringBuilder fsCmd = new StringBuilder();
@@ -1300,15 +1421,16 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        // 3. Check if required compiler/runtime is installed; if missing, run command in terminal and STOP
+        // 3. Check if required compiler/runtime is installed; if missing, install from TermCode GitHub Releases CDN
         String missingPkg = getMissingToolchainPackage(langName, fileName);
         if (missingPkg != null) {
             termuxEnv.clearAptLocks();
             String toolName = getToolchainDisplayName(langName, fileName);
+            String libKey = getLibraryKey(langName, fileName);
             binding.terminalView.appendOutput("\n\u001B[33m⚠️ " + toolName + " is not installed yet!\u001B[0m\n");
-            binding.terminalView.appendOutput("\u001B[36m👉 Running installation command in terminal: pkg install " + missingPkg + "\u001B[0m\n");
-            binding.terminalView.appendOutput("\u001B[32m$ pkg install " + missingPkg + "\u001B[0m\n");
-            runTerminalCommand("rm -f $PREFIX/var/lib/dpkg/lock* $PREFIX/var/lib/apt/lists/lock* $PREFIX/var/cache/apt/archives/lock* 2>/dev/null; dpkg --configure -a 2>/dev/null; pkg install " + missingPkg, workingDir);
+            showToolchainInstallDialog(libKey, () -> {
+                executeInTermux(workingDir, fileName, localFile);
+            });
             return;
         }
 
@@ -1359,13 +1481,13 @@ public class MainActivity extends AppCompatActivity {
     private void handleHtmlExecution(String workingDir, String fileName, File localFile) {
         File usrBin = new File(getFilesDir(), "usr/bin");
         
-        // 1. If Python is not installed, prompt user and run installation command in terminal
+        // 1. If Python is not installed, install it automatically via ToolchainInstaller from GitHub Releases CDN
         if (!new File(usrBin, "python").exists() && !new File(usrBin, "python3").exists()) {
             termuxEnv.clearAptLocks();
-            binding.terminalView.appendOutput("\n\u001B[33m⚠️ Python is not installed! Python is required to host the Local Web Server for HTML, CSS & JavaScript projects.\u001B[0m\n");
-            binding.terminalView.appendOutput("\u001B[36m👉 Running installation command in terminal: pkg install python\u001B[0m\n");
-            binding.terminalView.appendOutput("\u001B[32m$ pkg install python\u001B[0m\n");
-            runTerminalCommand("rm -f $PREFIX/var/lib/dpkg/lock* $PREFIX/var/lib/apt/lists/lock* $PREFIX/var/cache/apt/archives/lock* 2>/dev/null; dpkg --configure -a 2>/dev/null; pkg install python", workingDir);
+            binding.terminalView.appendOutput("\n\u001B[33m⚠️ Python is required to host the Local Web Server for HTML, CSS & JavaScript projects.\u001B[0m\n");
+            showToolchainInstallDialog("python", () -> {
+                handleHtmlExecution(workingDir, fileName, localFile);
+            });
             return;
         }
 

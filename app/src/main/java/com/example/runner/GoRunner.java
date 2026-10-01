@@ -23,6 +23,6 @@ public class GoRunner implements LanguageRunner {
 
     @Override
     public String getRunCommand(String sourcePath) {
-        return "go run \"" + sourcePath + "\"";
+        return "chmod -R 755 $PREFIX/lib/go 2>/dev/null; go run \"" + sourcePath + "\"";
     }
 }

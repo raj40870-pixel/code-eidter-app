@@ -22,7 +22,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Powered by Termux: Any language and package can be installed and executed directly in the terminal (TERM button):"
+            android:text="Powered by TermCode GitHub CDN &amp; Termux: Any toolchain installs directly via GitHub or standard pkg install:"
             android:textColor="#AAAAAA"
             android:textSize="12sp" />
 

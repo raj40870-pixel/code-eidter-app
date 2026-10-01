@@ -119,6 +119,21 @@ public class TemplateManager {
                 "A brief description of what this project does.\n\n" +
                 "## Getting Started\n\n" +
                 "- Run your code directly from the toolbar.\n");
+
+        templates.put("kt",
+                "// Kotlin\n\n" +
+                "fun main() {\n" +
+                "    println(\"Hello from Kotlin in Code Editor!\");\n" +
+                "}\n");
+
+        templates.put("cs",
+                "// C#\n\n" +
+                "using System;\n\n" +
+                "class Program {\n" +
+                "    static void Main(string[] args) {\n" +
+                "        Console.WriteLine(\"Hello from C# in Code Editor!\");\n" +
+                "    }\n" +
+                "}\n");
     }
 
     public static String getTemplate(String fileNameOrLang) {
@@ -168,6 +183,8 @@ public class TemplateManager {
         if (ext.equals("php")) return templates.get("php");
         if (ext.equals("rb") || ext.equals("ruby")) return templates.get("rb");
         if (ext.equals("lua")) return templates.get("lua");
+        if (ext.equals("kt") || ext.equals("kotlin")) return templates.get("kt");
+        if (ext.equals("cs") || ext.equals("csharp")) return templates.get("cs");
         if (ext.equals("sh") || ext.equals("bash")) return templates.get("sh");
         if (ext.equals("md") || ext.equals("markdown")) return templates.get("md");
 

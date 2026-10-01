@@ -1,68 +1,64 @@
 # CodeEditor IDE 🚀
-### *A Powerful, Standalone Mobile IDE & Compiler for Android*
+### *A Powerful, Standalone Multi-Language Mobile IDE & Compiler for Android*
 
 [![Platform](https://img.shields.io/badge/Platform-Android_8.0+-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://android.com)
-[![Languages](https://img.shields.io/badge/Languages-13+-blue?style=for-the-badge&logo=codeforces&logoColor=white)](#-supported-languages--compilers)
-[![Terminal](https://img.shields.io/badge/Engine-Embedded_Termux_Core-black?style=for-the-badge&logo=gnubash&logoColor=white)](https://termux.dev)
-[![Build](https://img.shields.io/badge/Build-Gradle_Kotlin_DSL-02303A?style=for-the-badge&logo=gradle&logoColor=white)](#-building-from-source)
+[![Languages](https://img.shields.io/badge/Languages-14+-blue?style=for-the-badge&logo=codeforces&logoColor=white)](#-supported-languages--starter-files)
+[![Terminal](https://img.shields.io/badge/Engine-Embedded_Linux_Core-black?style=for-the-badge&logo=gnubash&logoColor=white)](https://github.com/raj40870-pixel/library)
+[![Build](https://img.shields.io/badge/Build-Gradle_Kotlin_DSL-02303A?style=for-the-badge&logo=gradle&logoColor=white)](#-how-to-build-apk-from-source)
 [![License](https://img.shields.io/badge/License-MIT-orange?style=for-the-badge)](LICENSE)
 
 ---
 
 ## 🌟 Overview
 
-**CodeEditor IDE** is a full-featured, self-contained development environment built specifically for Android devices. Unlike standard mobile code editors that rely on external cloud APIs or require users to separately install and configure third-party terminal apps, **CodeEditor IDE bundles its own embedded Linux userland environment**.
+**CodeEditor IDE** is an all-in-one, standalone development environment designed specifically for Android smartphones and tablets. It combines a feature-rich multi-tab code editor, a full-featured Linux terminal subsystem, and an automated cloud compiler package manager.
 
-With a native interactive terminal, dynamic file explorer, and smart automated toolchain management, you can code, compile, debug, and run programs natively on your phone or tablet completely on-device.
+Unlike ordinary mobile editors that rely on remote cloud compile servers or require third-party terminal apps, **CodeEditor IDE executes code directly on your device** inside a secure sandboxed Linux userland environment.
+
+---
+
+## 🛠️ Supported Languages & Starter Files
+
+CodeEditor IDE comes pre-configured with templates, syntax highlighting, and automated execution runners for all major programming languages:
+
+| Language | Default Filename | Compiler / Runtime | Execution Mode | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| **C** | `main.c` | Clang (LLVM) | Native ARM64 / x86 Binary | Real-time unbuffered interactive I/O (`printf`, `scanf`) |
+| **C++** | `main.cpp` | Clang++ (C++17/20) | Native ARM64 / x86 Binary | Interactive I/O (`std::cout`, `std::cin`) |
+| **C#** | `Program.cs` | Mono Compiler (`mcs`) | Mono CLI (`mono`) | .NET C# runtime execution |
+| **Python** | `main.py` | Python 3.12+ | Direct Interpreter | Scientific & general scripting with unbuffered output (`-u`) |
+| **Java** | `Main.java` | OpenJDK 21 (`javac`) | Java Virtual Machine (`java`) | Auto-matches `public class <Name>` file naming |
+| **JavaScript** | `main.js` | Node.js (V8) | Node.js Runtime | Modern ES6+ JavaScript execution |
+| **TypeScript** | `main.ts` | TypeScript (`ts-node`) | Node.js Runtime | Typed JavaScript execution |
+| **Go** | `main.go` | Go Toolchain | `go run` | High-performance Go compiled execution |
+| **Rust** | `main.rs` | Rustc (LLVM backend) | Native Binary | Direct Rust compilation and execution |
+| **Kotlin** | `Main.kt` | Kotlin Compiler (`kotlinc`) | JVM Archive Runner | Native Kotlin on OpenJDK JVM |
+| **PHP** | `index.php` | PHP 8+ | PHP CLI Interpreter | Server-side scripting |
+| **Ruby** | `main.rb` | Ruby 3+ | Ruby MRI Interpreter | Script execution |
+| **Lua** | `main.lua` | Lua 5.4 | Lua Standalone | Lightweight scripting |
+| **HTML / Web** | `index.html` | Background Web Server | Live In-App Browser Preview | **HTML, CSS (`style.css`), & JavaScript** integrated with live localhost web preview |
+| **Full-Stack Node.js** | `package.json` | Node.js + NPM | `npm install && npm start` | Runs full-stack backend servers & web apps |
+
+> [!NOTE]
+> For **HTML / Web projects**, a single project seamlessly runs **HTML, CSS (`style.css`), and JavaScript (`main.js` / `script.js`)** together. The IDE automatically boots an in-app background web server and opens a live interactive browser preview dialog.
 
 ---
 
 ## ✨ Key Features
 
-### ⚡ Integrated Package Management
-- When you click **Run**, the IDE checks whether the required compiler or runtime (e.g., `clang`, `openjdk-17`, `python`, `rust`, `nodejs`) is installed.
-- If missing, the IDE automatically launches the installation command directly inside the integrated terminal session with stale dpkg lock prevention.
-- Full interactive control over packages with `pkg install`, `pkg search`, and `pkg upgrade`.
-
-### 💻 Unbuffered Real-Time Interactive I/O (C/C++ Fix)
-- Solves the notorious standard library buffering issue where interactive prompts like `cout << "Enter a number: ";` or `printf(...)` would not appear until after user input was captured.
-- Uses native `stdbuf -o0 -e0` zero-latency streams so user prompts display in real time with interactive `cin` / `scanf` stdin support.
-
-### 🌐 Built-in Background Web Server
-- For HTML, CSS, and JavaScript projects, the IDE launches a lightweight local HTTP server (`python -m http.server 8080 &`) safely in the background.
-- Your terminal remains completely interactive and unblocked.
-- Includes a 1-tap browser preview button for instant real-time web rendering.
-
-### 📁 Dynamic File Explorer & Class Sync
-- Create, rename, delete, and organize files and nested directories.
-- Automatically synchronizes compilation outputs (such as Java `.class` files, e.g., `Student.class`, C/C++ compiled binaries) directly in the file explorer tree for full transparency.
-- Intelligent Java class detection automatically matches file naming conventions with `public class <Name>`.
-
-### 🎨 Modern Code Editor & Terminal
-- Syntax highlighting across multiple programming languages.
-- Configurable editor settings: adjust font sizes (`12px`, `14px`, `16px`, `18px`, `20px`) and color themes.
-- Full VT100 / ANSI escape sequence terminal emulation with a virtual extra-keys bar (`Tab`, `Ctrl`, `Alt`, `ESC`, `|`, `~`, `/`, `-`).
-
----
-
-## 🛠️ Supported Languages & Compilers
-
-| Language | Environment / Package | Compiler / Command | Execution Mode |
-| :--- | :--- | :--- | :--- |
-| **C** | `clang` | `clang -Wall -O2 file.c -o file` | Unbuffered Native Binary |
-| **C++** | `clang` | `clang++ -std=c++17 file.cpp -o file` | Unbuffered Native Binary |
-| **Java** | `openjdk-21` / `openjdk-17` | `javac File.java && java File` | Bytecode on JVM |
-| **Python** | `python` | `python3 -u file.py` | Direct Script Runner |
-| **JavaScript** | `nodejs` | `node file.js` | V8 Engine |
-| **TypeScript** | `nodejs` + `ts-node` | `npx ts-node file.ts` | On-the-fly Compilation |
-| **Go** | `golang` | `go run file.go` | Direct Native Runner |
-| **Rust** | `rust` | `rustc file.rs -o file && ./file` | Native Machine Code |
-| **Kotlin** | `kotlin` | `kotlinc file.kt -include-runtime -d file.jar` | JVM Archive Runner |
-| **C#** | `mono` | `mcs file.cs && mono file.exe` | Mono CLI Runtime |
-| **PHP** | `php` | `php file.php` | CLI Interpreter |
-| **Ruby** | `ruby` | `ruby file.rb` | MRI Interpreter |
-| **Lua** | `lua54` | `lua file.lua` | Standalone Interpreter |
-| **HTML/CSS/JS**| `python` | `python -m http.server 8080 &` | Background Web Server |
+- **⚡ Zero-Config Toolchain Installer**:
+  When you tap **Run**, the IDE checks whether the required compiler or interpreter is installed. If missing, a clean **0%–100% progress dialog** automatically downloads and configures the optimized toolchain directly from the CDN and runs your code instantly upon completion.
+- **💻 Embedded Terminal & Linux Userland**:
+  Full ANSI/VT100 terminal emulation powered by a native pseudo-terminal (PTY) and Linux userland. Supports standard shell commands, file operations, and package management.
+- **📁 Smart File Explorer & Multi-Tab Editor**:
+  - Open, create, rename, and delete files and folders.
+  - Multi-tab file switching with automatic unsaved-change protection.
+  - Device storage integration: open folders and files directly from your phone's storage.
+  - Class & binary synchronization: compiled `.class` and `.out` files appear live in the file tree.
+- **🌐 In-App Web Preview**:
+  Instant live preview for HTML/CSS/JS web pages with refresh, back, and address bar controls.
+- **🚀 Full-Stack Node.js Support**:
+  Detects `package.json`, automatically runs `npm install` (if `node_modules` is missing), and starts your server via `npm start`.
 
 ---
 
@@ -70,98 +66,111 @@ With a native interactive terminal, dynamic file explorer, and smart automated t
 
 ```mermaid
 flowchart TD
-    User([User writes code in Editor]) --> RunBtn[Click 'Run' Action]
-    RunBtn --> Detect[Language & File Extension Detector]
-    Detect --> CheckPkg{Toolchain Installed in Sysroot?}
-    CheckPkg -- No --> PromptInst[Terminal Command: pkg install &lt;package&gt;]
-    CheckPkg -- Yes --> Exec
-    PromptInst --> TermView[Interactive Terminal Installation]
-    Exec --> PTY[libtermux-exec.so + Pseudo-Terminal]
-    PTY --> TermView[Interactive Terminal Output & stdin Input]
-    Exec --> Sync[Auto-refresh File Explorer for .class / binaries]
+    User([User taps 'Run' button]) --> Detect[Language & File Extension Detection]
+    Detect --> CheckToolchain{Compiler/Runtime Installed?}
+    CheckToolchain -- No --> CDN[Download from CDN with 0-100% Progress Bar]
+    CDN --> Install[Extract toolchain into private app storage /usr]
+    Install --> Exec
+    CheckToolchain -- Yes --> Exec[Compile & Execute in Termux PTY]
+    Exec --> Terminal[Interactive Output & User Stdin in Terminal]
+    Exec --> WebCheck{Is HTML or Web Project?}
+    WebCheck -- Yes --> WebServer[Start Background HTTP Server on Port 8080]
+    WebServer --> Preview[Open In-App Web Preview Dialog]
 ```
 
-1. **Embedded Linux Environment**: The app extracts an internal Linux rootfs (arm64-v8a / armeabi-v7a / x86_64) into the app's sandboxed private storage directory (`/data/data/com.termcode.ide/files/usr`).
-2. **Terminal Subsystem**: Integrates a custom Termux terminal emulator view connected via Linux PTY (pseudo-terminal) using Android NDK shared libraries.
-3. **Execution Pipeline**: `BaseRunner` implementations translate source files into compiled binaries or interpreted scripts with custom stream buffering configurations.
+---
+
+## 📦 How to Build APK from Source
+
+Follow these simple steps to clone the repository and build your own APK:
+
+### 1. Prerequisites
+- **Git**: Installed on your system ([Download Git](https://git-scm.com/))
+- **Java Development Kit (JDK)**: JDK 17 or higher ([Download JDK](https://adoptium.net/))
+- **Android Studio** (Recommended): Hedgehog / Iguana / Ladybug or newer ([Download Android Studio](https://developer.android.com/studio))
+  - Android SDK Platform 34 (Android 14)
+  - Android SDK Build-Tools 34.0.0
+  - NDK (Side by side)
+
+---
+
+### 2. Clone the Repository
+
+Open your terminal or command prompt and run:
+
+```bash
+git clone https://github.com/raj40870-pixel/code-eidter-app.git
+cd code-eidter-app
+```
+
+---
+
+### 3. Build the Debug APK
+
+#### Option A: Using the Command Line (Fastest)
+
+**On Windows (PowerShell or Command Prompt):**
+```powershell
+.\gradlew assembleDebug
+```
+
+**On Linux or macOS:**
+```bash
+chmod +x gradlew
+./gradlew assembleDebug
+```
+
+#### Option B: Using Android Studio
+1. Open Android Studio.
+2. Click **File -> Open...** and select the cloned `code-eidter-app` folder.
+3. Wait for Gradle sync to complete.
+4. From the top menu, select **Build -> Build Bundle(s) / APK(s) -> Build APK(s)**.
+
+---
+
+### 4. Locate Your Generated APK
+
+Once the build finishes successfully, your APK will be ready at:
+
+```text
+app/build/outputs/apk/debug/app-debug.apk
+```
+
+You can now transfer `app-debug.apk` to any Android device running Android 8.0 (Oreo) or higher and install it!
 
 ---
 
 ## 📂 Project Structure
 
 ```text
-termcode-ide/
+code-eidter-app/
 ├── app/
 │   ├── src/
 │   │   ├── main/
-│   │   │   ├── java/com/termcode/ide/
-│   │   │   │   ├── MainActivity.java        # Core IDE coordinator & layout controller
-│   │   │   │   ├── editor/                  # Code editor view & syntax highlighter
-│   │   │   │   ├── terminal/                # Termux terminal session, view, & PTY client
-│   │   │   │   ├── runner/                  # Language runners (C, C++, Java, Python, etc.)
-│   │   │   │   ├── explorer/                # File tree explorer & storage manager
-│   │   │   │   └── settings/                # Settings dialogs & preferences
-│   │   │   ├── res/                         # UI layouts, mipmap icons, values, & styles
-│   │   │   └── AndroidManifest.xml          # Permissions & launcher configuration
-│   │   └── build.gradle.kts                 # Module-level Gradle configuration
-├── gradle/                                  # Gradle wrapper binaries & setup
-├── build.gradle.kts                         # Top-level build configuration
-├── settings.gradle.kts                      # Project settings & plugin declarations
-└── README.md                                # Project documentation
+│   │   │   ├── java/com/example/
+│   │   │   │   ├── MainActivity.java               # Main IDE controller, tabs & lifecycle
+│   │   │   │   ├── editor/                         # Code editor component & highlighter
+│   │   │   │   ├── runner/                         # Language runners (C, C++, Java, Rust, Go, Python, etc.)
+│   │   │   │   │   ├── TemplateManager.java        # Starter code templates for all languages
+│   │   │   │   │   ├── GoRunner.java               # Go compilation & execution runner
+│   │   │   │   │   └── RunManager.java             # Extension-to-runner dispatcher
+│   │   │   │   ├── terminal/                       # Termux terminal session, PTY & environment
+│   │   │   │   │   ├── TermuxEnvironment.java      # Environment paths & variables
+│   │   │   │   │   ├── TermuxBootstrapInstaller.java # Rootfs setup & initialization
+│   │   │   │   │   └── ToolchainInstaller.java     # Automated toolchain package manager
+│   │   │   │   └── ui/                             # File explorer tree & editor tab adapters
+│   │   │   ├── res/                                # Layouts, icons, themes, and UI resources
+│   │   │   └── AndroidManifest.xml                 # App permissions, activities & orientation config
+│   │   └── build.gradle.kts                        # Module build configuration & dependencies
+├── gradle/                                         # Gradle wrapper files
+├── build.gradle.kts                                # Root build configuration
+├── settings.gradle.kts                             # Project settings
+└── README.md                                       # Complete documentation
 ```
-
----
-
-## 🚀 Building from Source
-
-### Prerequisites
-- **Android Studio**: Android Studio Hedgehog / Iguana / Ladybug or newer
-- **JDK**: Java Development Kit 17 or higher
-- **Android SDK**: API Level 34 (Android 14) with NDK installed
-
-### Build Steps
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/raj40870-pixel/code-eidter-app.git
-   cd code-eidter-app
-   ```
-
-2. **Open in Android Studio:**
-   - Select **Open an Existing Project** and navigate to the cloned folder.
-   - Let Gradle sync all dependencies automatically.
-
-3. **Build Debug APK via Terminal:**
-   ```bash
-   # On Windows PowerShell / Command Prompt
-   .\gradlew assembleDebug
-
-   # On Linux / macOS
-   ./gradlew assembleDebug
-   ```
-
-4. **Locate Generated APK:**
-   - The compiled debug APK will be created at:
-     ```
-     app/build/outputs/apk/debug/app-debug.apk
-     ```
-
----
-
-## 🤝 Contributing
-
-Contributions, bug reports, and feature requests are welcome!
-Feel free to open an issue or submit a pull request:
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
 
 ---
 
 ## 📄 License
 
-This project is licensed under the [MIT License](LICENSE).
-Built with passion for mobile developers and student coders worldwide! 💻📱
+This project is open-source and available under the [MIT License](LICENSE).
+Built with ❤️ for programmers, students, and mobile developers worldwide! 💻📱
