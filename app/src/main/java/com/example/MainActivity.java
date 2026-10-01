@@ -116,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
         setupToolbarActions();
         setupTwoTierBottomBar();
         checkStoragePermissions();
+        com.example.util.AppUpdateManager.checkForUpdates(this, false);
     }
 
     private void checkStoragePermissions() {
@@ -725,6 +726,8 @@ public class MainActivity extends AppCompatActivity {
         popup.getMenu().add(0, 5, 4, "📜 Open Source Licenses & Credits");
         popup.getMenu().add(0, 6, 5, "ℹ️ About Code Editor");
         popup.getMenu().add(0, 7, 6, "🏠 Reset to CppStarter (Default)");
+        popup.getMenu().add(0, 8, 7, "🌐 Official Website");
+        popup.getMenu().add(0, 9, 8, "🔄 Check for Updates");
         popup.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
                 case 1:
@@ -749,6 +752,12 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case 7:
                     resetToCppStarter();
+                    break;
+                case 8:
+                    com.example.util.AppUpdateManager.openWebsite(this);
+                    break;
+                case 9:
+                    com.example.util.AppUpdateManager.checkForUpdates(this, true);
                     break;
             }
             return true;
