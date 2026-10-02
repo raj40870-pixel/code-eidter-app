@@ -22,8 +22,8 @@ import java.util.zip.ZipInputStream;
 public class ToolchainInstaller {
 
     private static final String TAG = "ToolchainInstaller";
-    private static final String GITHUB_RELEASE_BASE = "https://github.com/raj40870-pixel/library/releases/download/v1.3.0/";
-    private static final String GITHUB_RELEASE_BASE_FALLBACK = "https://github.com/raj40870-pixel/library/releases/download/v1.0.0/";
+    private static final String GITHUB_RELEASE_BASE = "https://github.com/raj40870-pixel/library/releases/download/v1.3.1/";
+    private static final String GITHUB_RELEASE_BASE_FALLBACK = "https://github.com/raj40870-pixel/library/releases/download/v1.3.0/";
 
     private static final Map<String, String> PACKAGE_TO_TARGET = new HashMap<>();
     private static final Map<String, String> TARGET_DISPLAY_NAMES = new HashMap<>();

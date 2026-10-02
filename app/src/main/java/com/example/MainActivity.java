@@ -739,7 +739,8 @@ public class MainActivity extends AppCompatActivity {
         popup.getMenu().add(0, 6, 5, "ℹ️ About Code Editor");
         popup.getMenu().add(0, 7, 6, "🔄 Restart");
         popup.getMenu().add(0, 8, 7, "🌐 Official Website");
-        popup.getMenu().add(0, 9, 8, "🔄 Check for Updates");
+        popup.getMenu().add(0, 10, 8, "🐙 Official GitHub Repository");
+        popup.getMenu().add(0, 9, 9, "🔄 Check for Updates");
         popup.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
                 case 1:
@@ -767,6 +768,9 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case 8:
                     com.example.util.AppUpdateManager.openWebsite(this);
+                    break;
+                case 10:
+                    com.example.util.AppUpdateManager.openGitHubRepo(this);
                     break;
                 case 9:
                     com.example.util.AppUpdateManager.checkForUpdates(this, true);

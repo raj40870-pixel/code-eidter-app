@@ -32,11 +32,21 @@ public class AppUpdateManager {
 
     private static final String TAG = "AppUpdateManager";
     public static final String WEBSITE_URL = "https://code-eidter-apk-website.vercel.app/";
+    public static final String GITHUB_REPO_URL = "https://github.com/raj40870-pixel/code-eidter-app";
     public static final String VERSION_API_URL = "https://code-eidter-apk-website.vercel.app/version.json";
 
     public static void openWebsite(Activity activity) {
         try {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(WEBSITE_URL));
+            activity.startActivity(intent);
+        } catch (Exception e) {
+            Toast.makeText(activity, "Could not open browser: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public static void openGitHubRepo(Activity activity) {
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(GITHUB_REPO_URL));
             activity.startActivity(intent);
         } catch (Exception e) {
             Toast.makeText(activity, "Could not open browser: " + e.getMessage(), Toast.LENGTH_SHORT).show();
