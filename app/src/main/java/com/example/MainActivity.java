@@ -1265,7 +1265,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void showAboutDialog() {
         new AlertDialog.Builder(this)
-                .setTitle("Code Editor v2.2")
+                .setTitle("Code Editor v" + BuildConfig.VERSION_NAME)
                 .setMessage("A universal, multi-language standalone mobile IDE powered by an embedded Linux userland.\n\n" +
                         "• Supported Languages & Compilers:\n" +
                         "  - C (main.c - Clang)\n" +

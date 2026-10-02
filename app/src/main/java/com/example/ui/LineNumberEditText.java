@@ -13,6 +13,7 @@ import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+import android.view.ViewConfiguration;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatEditText;
@@ -29,6 +30,17 @@ public class LineNumberEditText extends AppCompatEditText {
     private int gutterWidth;
     private int digitCount = 2;
     private final float density;
+
+    // Horizontal Scrolling & Dragging
+    private int touchSlop;
+    private float downX;
+    private float downY;
+    private float lastDragX;
+    private float lastDragY;
+    private boolean isHorizontalDragging = false;
+    private boolean isVerticalDragging = false;
+    private int maxContentWidth = 0;
+    private boolean isHorizontallyScrollingEnabled = true;
 
     // Pinch-to-zoom
     private ScaleGestureDetector scaleGestureDetector;
@@ -70,6 +82,9 @@ public class LineNumberEditText extends AppCompatEditText {
         setBackgroundColor(Color.parseColor("#181818"));
         setTextColor(Color.parseColor("#E6E6E6"));
         setFontSizeSp(14.5f);
+
+        touchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
+        setHorizontallyScrolling(true);
 
         lineNumberPaint.setColor(Color.parseColor("#666666"));
         lineNumberPaint.setTextSize(getTextSize() * 0.85f);
@@ -174,19 +189,26 @@ public class LineNumberEditText extends AppCompatEditText {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        int scrollX = getScrollX();
+        int scrollY = getScrollY();
+        int viewHeight = getHeight();
+        int viewWidth = getWidth();
+
+        // 1. Clip and draw editor text to the right of the gutter
+        canvas.save();
+        canvas.clipRect(scrollX + gutterWidth, scrollY, scrollX + viewWidth, scrollY + viewHeight);
+        super.onDraw(canvas);
+        canvas.restore();
+
+        // 2. Draw seamless gutter background
         Layout layout = getLayout();
         if (layout != null) {
-            int scrollX = getScrollX();
-            int scrollY = getScrollY();
-            int viewHeight = getHeight();
-
-            // 1. Draw seamless gutter background
             canvas.drawRect(scrollX, scrollY, scrollX + gutterWidth, scrollY + viewHeight, gutterBgPaint);
 
-            // 2. Draw subtle vertical divider
+            // 3. Draw subtle vertical divider
             canvas.drawLine(scrollX + gutterWidth, scrollY, scrollX + gutterWidth, scrollY + viewHeight, dividerPaint);
 
-            // 3. Draw line numbers right aligned
+            // 4. Draw line numbers pinned to gutter
             canvas.getClipBounds(rect);
             int lineCount = getLineCount();
             int firstLine = layout.getLineForVertical(rect.top);
@@ -217,7 +239,6 @@ public class LineNumberEditText extends AppCompatEditText {
                 }
             }
         }
-        super.onDraw(canvas);
     }
 
     public void insertSymbol(String symbol) {
@@ -409,16 +430,127 @@ public class LineNumberEditText extends AppCompatEditText {
     }
 
     @Override
+    public void setHorizontallyScrolling(boolean whether) {
+        super.setHorizontallyScrolling(whether);
+        this.isHorizontallyScrollingEnabled = whether;
+        if (!whether) {
+            scrollTo(0, getScrollY());
+        }
+    }
+
+    public boolean isHorizontallyScrollingEnabled() {
+        return isHorizontallyScrollingEnabled;
+    }
+
+    private void updateMaxContentWidth() {
+        Layout layout = getLayout();
+        if (layout == null) {
+            maxContentWidth = 0;
+            return;
+        }
+        float maxWidth = 0;
+        int count = layout.getLineCount();
+        for (int i = 0; i < count; i++) {
+            float w = layout.getLineWidth(i);
+            if (w > maxWidth) {
+                maxWidth = w;
+            }
+        }
+        maxContentWidth = (int) Math.ceil(maxWidth);
+    }
+
+    private int computeMaxScrollX() {
+        int viewWidth = getWidth();
+        if (viewWidth <= 0) return 0;
+        int totalWidth = getCompoundPaddingLeft() + maxContentWidth + getCompoundPaddingRight();
+        if (totalWidth <= viewWidth) return 0;
+        return (totalWidth - viewWidth) + (int) (60 * density);
+    }
+
+    @Override
+    protected int computeHorizontalScrollRange() {
+        return Math.max(getWidth(), getCompoundPaddingLeft() + maxContentWidth + getCompoundPaddingRight());
+    }
+
+    @Override
+    protected int computeHorizontalScrollOffset() {
+        return getScrollX();
+    }
+
+    @Override
+    protected int computeHorizontalScrollExtent() {
+        return getWidth();
+    }
+
+    @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (scaleGestureDetector != null) {
             scaleGestureDetector.onTouchEvent(event);
         }
+
         if (event.getPointerCount() > 1) {
+            isHorizontalDragging = false;
             if (getParent() != null) {
                 getParent().requestDisallowInterceptTouchEvent(true);
             }
             return true;
         }
+
+        if (!isHorizontallyScrollingEnabled) {
+            return super.onTouchEvent(event);
+        }
+
+        switch (event.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN:
+                downX = event.getX();
+                downY = event.getY();
+                lastDragX = downX;
+                lastDragY = downY;
+                isHorizontalDragging = false;
+                isVerticalDragging = false;
+                updateMaxContentWidth();
+                super.onTouchEvent(event);
+                return true;
+
+            case MotionEvent.ACTION_MOVE:
+                float currentX = event.getX();
+                float currentY = event.getY();
+                float deltaX = currentX - downX;
+                float deltaY = currentY - downY;
+
+                if (!isHorizontalDragging && !isVerticalDragging) {
+                    if (Math.abs(deltaX) > touchSlop && Math.abs(deltaX) > Math.abs(deltaY) * 1.1f) {
+                        isHorizontalDragging = true;
+                        if (getParent() != null) {
+                            getParent().requestDisallowInterceptTouchEvent(true);
+                        }
+                    } else if (Math.abs(deltaY) > touchSlop) {
+                        isVerticalDragging = true;
+                    }
+                }
+
+                if (isHorizontalDragging) {
+                    if (getParent() != null) {
+                        getParent().requestDisallowInterceptTouchEvent(true);
+                    }
+                    float dx = lastDragX - currentX;
+                    int maxScrollX = computeMaxScrollX();
+                    int newScrollX = Math.max(0, Math.min(maxScrollX, getScrollX() + (int) dx));
+                    scrollTo(newScrollX, getScrollY());
+                    lastDragX = currentX;
+                    return true;
+                }
+                break;
+
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                if (isHorizontalDragging) {
+                    isHorizontalDragging = false;
+                    return true;
+                }
+                break;
+        }
+
         return super.onTouchEvent(event);
     }
 }

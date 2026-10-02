@@ -1,23 +1,36 @@
 package com.example.util;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.provider.Settings;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.FileProvider;
 
 import com.example.BuildConfig;
 
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class AppUpdateManager {
 
+    private static final String TAG = "AppUpdateManager";
     public static final String WEBSITE_URL = "https://code-eidter-apk-website.vercel.app/";
     public static final String VERSION_API_URL = "https://code-eidter-apk-website.vercel.app/version.json";
 
@@ -87,17 +100,119 @@ public class AppUpdateManager {
         if (activity.isFinishing() || activity.isDestroyed()) return;
 
         new AlertDialog.Builder(activity)
-                .setTitle("🎉 New Update Available (v" + versionName + ")")
-                .setMessage(releaseNotes + "\n\nDo you want to download and install the update now?")
-                .setPositiveButton("Download Update", (dialog, which) -> {
-                    try {
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(apkUrl));
-                        activity.startActivity(intent);
-                    } catch (Exception e) {
-                        Toast.makeText(activity, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
+                .setTitle("🚀 New Update Available (v" + versionName + ")")
+                .setMessage(releaseNotes + "\n\nDo you want to download and install this update directly in the app?")
+                .setPositiveButton("Update Now", (dialog, which) -> {
+                    startInAppDownloadAndInstall(activity, apkUrl, versionName);
                 })
                 .setNegativeButton("Later", null)
                 .show();
+    }
+
+    private static void startInAppDownloadAndInstall(Activity activity, String apkUrl, String versionName) {
+        if (activity.isFinishing() || activity.isDestroyed()) return;
+
+        // Check if Android 8.0+ unknown sources permission is granted
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (!activity.getPackageManager().canRequestPackageInstalls()) {
+                Intent permissionIntent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+                        Uri.parse("package:" + activity.getPackageName()));
+                activity.startActivity(permissionIntent);
+                Toast.makeText(activity, "Please allow 'Install unknown apps' permission to update Code Editor directly.", Toast.LENGTH_LONG).show();
+                return;
+            }
+        }
+
+        ProgressDialog progressDialog = new ProgressDialog(activity);
+        progressDialog.setTitle("Updating Code Editor");
+        progressDialog.setMessage("Downloading v" + versionName + " directly...");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progressDialog.setMax(100);
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        new Thread(() -> {
+            try {
+                URL url = new URL(apkUrl);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setConnectTimeout(10000);
+                connection.setReadTimeout(15000);
+                connection.connect();
+
+                int fileLength = connection.getContentLength();
+                File downloadDir = activity.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+                if (downloadDir == null) {
+                    downloadDir = activity.getCacheDir();
+                }
+                if (!downloadDir.exists()) downloadDir.mkdirs();
+
+                File targetApk = new File(downloadDir, "CodeEditor-v" + versionName + ".apk");
+                if (targetApk.exists()) targetApk.delete();
+
+                InputStream input = new BufferedInputStream(connection.getInputStream());
+                OutputStream output = new FileOutputStream(targetApk);
+
+                byte[] data = new byte[8192];
+                long total = 0;
+                int count;
+
+                while ((count = input.read(data)) != -1) {
+                    total += count;
+                    if (fileLength > 0) {
+                        int progress = (int) (total * 100 / fileLength);
+                        activity.runOnUiThread(() -> {
+                            progressDialog.setProgress(progress);
+                            progressDialog.setMessage("Downloading v" + versionName + " (" + progress + "%)...");
+                        });
+                    }
+                    output.write(data, 0, count);
+                }
+
+                output.flush();
+                output.close();
+                input.close();
+
+                activity.runOnUiThread(() -> {
+                    if (!activity.isFinishing() && !activity.isDestroyed()) {
+                        progressDialog.dismiss();
+                    }
+                    installApk(activity, targetApk);
+                });
+
+            } catch (Exception e) {
+                Log.e(TAG, "Download error: " + e.getMessage(), e);
+                activity.runOnUiThread(() -> {
+                    if (!activity.isFinishing() && !activity.isDestroyed()) {
+                        progressDialog.dismiss();
+                    }
+                    Toast.makeText(activity, "Update download failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                });
+            }
+        }).start();
+    }
+
+    private static void installApk(Activity activity, File apkFile) {
+        try {
+            if (!apkFile.exists()) {
+                Toast.makeText(activity, "APK file not found for install", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            Uri apkUri;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                apkUri = FileProvider.getUriForFile(activity, activity.getPackageName() + ".provider", apkFile);
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            } else {
+                apkUri = Uri.fromFile(apkFile);
+            }
+            intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
+            activity.startActivity(intent);
+        } catch (Exception e) {
+            Log.e(TAG, "Install error: " + e.getMessage(), e);
+            Toast.makeText(activity, "Could not launch installer: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 }
