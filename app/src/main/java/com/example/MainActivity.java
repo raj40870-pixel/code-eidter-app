@@ -121,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
         setupTwoTierBottomBar();
         com.example.util.AppSecurity.checkTamperAndEnforce(this);
         checkStoragePermissions();
+        com.example.util.BinaryCacheManager.cleanupExpiredBinaries(this);
         com.example.util.AppUpdateManager.checkForUpdates(this, false);
     }
 
@@ -1564,8 +1565,12 @@ public class MainActivity extends AppCompatActivity {
     private void executeInTermux(String workingDir, String fileName, File localFile) {
         LanguageRunner runner = runManager.getRunnerForFile(fileName);
         String baseName = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf('.')) : fileName;
-        String outputBinary = baseName + ".out";
+        String binDir = "$HOME/.bin_cache";
+        String outputBinary = binDir + "/" + baseName + ".out";
         String langName = runner.getLanguageName();
+
+        // 0. Auto-clean expired binary artifacts (>24h)
+        com.example.util.BinaryCacheManager.cleanupExpiredBinaries(this);
 
         // 1. Special handling for HTML / Web Server & Live In-App Preview
         if ("HTML".equalsIgnoreCase(langName) || fileName.endsWith(".html") || fileName.endsWith(".htm")) {
@@ -1622,9 +1627,11 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         java.nio.file.Files.write(properFile.toPath(), editorText.getBytes(java.nio.charset.StandardCharsets.UTF_8));
                         runFile = expectedName;
-                        runOutput = publicClass + ".out";
+                        runOutput = binDir + "/" + publicClass + ".out";
                         binding.terminalView.appendOutput("\u001B[33mℹ️ Java public class '" + publicClass + "' matched: syncing '" + expectedName + "'\u001B[0m\n");
                     } catch (Exception ignored) {}
+                } else {
+                    runOutput = binDir + "/" + publicClass + ".out";
                 }
             }
         }
@@ -1643,12 +1650,12 @@ public class MainActivity extends AppCompatActivity {
         binding.terminalView.appendOutput("\u001B[32m$ " + cmd.toString() + "\u001B[0m\n");
         runTerminalCommand(cmd.toString(), workingDir);
 
-        // Rebuild file tree after compilation so newly created files (like Student.class) appear in explorer
+        // Rebuild file tree after compilation (binary files like .out/.class are filtered out)
         binding.terminalView.postDelayed(() -> {
             if (explorerAdapter != null) {
                 explorerAdapter.rebuildTree();
             }
-        }, 2000);
+        }, 1500);
     }
 
     private void handleHtmlExecution(String workingDir, String fileName, File localFile) {

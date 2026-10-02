@@ -18,13 +18,21 @@ public class CSharpRunner implements LanguageRunner {
 
     @Override
     public String getCompileCommand(String sourcePath, String outputPath) {
-        String exe = sourcePath.contains(".") ? sourcePath.substring(0, sourcePath.lastIndexOf('.')) + ".exe" : sourcePath + ".exe";
-        return "mcs \"" + sourcePath + "\" -out:\"" + exe + "\"";
+        String base = sourcePath.contains(".") ? sourcePath.substring(0, sourcePath.lastIndexOf('.')) : sourcePath;
+        if (base.contains("/")) {
+            base = base.substring(base.lastIndexOf('/') + 1);
+        }
+        String exe = "$HOME/.bin_cache/" + base + ".exe";
+        return "mkdir -p \"$HOME/.bin_cache\" && mcs \"" + sourcePath + "\" -out:\"" + exe + "\"";
     }
 
     @Override
     public String getRunCommand(String sourceOrOutputPath) {
-        String exe = sourceOrOutputPath.contains(".") ? sourceOrOutputPath.substring(0, sourceOrOutputPath.lastIndexOf('.')) + ".exe" : sourceOrOutputPath + ".exe";
+        String base = sourceOrOutputPath.contains(".") ? sourceOrOutputPath.substring(0, sourceOrOutputPath.lastIndexOf('.')) : sourceOrOutputPath;
+        if (base.contains("/")) {
+            base = base.substring(base.lastIndexOf('/') + 1);
+        }
+        String exe = "$HOME/.bin_cache/" + base + ".exe";
         return "mono \"" + exe + "\"";
     }
 }

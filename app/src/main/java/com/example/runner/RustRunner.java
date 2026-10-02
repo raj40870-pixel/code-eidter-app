@@ -18,11 +18,12 @@ public class RustRunner implements LanguageRunner {
 
     @Override
     public String getCompileCommand(String sourcePath, String outputPath) {
-        return "rustc \"" + sourcePath + "\" -o \"" + outputPath + "\"";
+        return "mkdir -p \"$HOME/.bin_cache\" && rustc \"" + sourcePath + "\" -o \"" + outputPath + "\" && chmod +x \"" + outputPath + "\"";
     }
 
     @Override
     public String getRunCommand(String outputPath) {
-        return "./\"" + outputPath + "\"";
+        String exec = (outputPath.startsWith("/") || outputPath.startsWith("$")) ? "\"" + outputPath + "\"" : "./\"" + outputPath + "\"";
+        return exec;
     }
 }

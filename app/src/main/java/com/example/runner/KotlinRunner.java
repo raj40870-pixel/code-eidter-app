@@ -18,11 +18,11 @@ public class KotlinRunner implements LanguageRunner {
 
     @Override
     public String getCompileCommand(String sourcePath, String outputPath) {
-        return "kotlinc \"" + sourcePath + "\" -include-runtime -d app.jar";
+        return "mkdir -p \"$HOME/.bin_cache\" && kotlinc \"" + sourcePath + "\" -include-runtime -d \"$HOME/.bin_cache/app.jar\"";
     }
 
     @Override
     public String getRunCommand(String outputPath) {
-        return "java -jar app.jar";
+        return "java -jar \"$HOME/.bin_cache/app.jar\"";
     }
 }

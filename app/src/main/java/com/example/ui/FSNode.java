@@ -100,6 +100,7 @@ public class FSNode {
             if (files != null && files.length > 0) {
                 for (File f : files) {
                     if (f.getName().startsWith(".")) continue;
+                    if (com.example.util.BinaryCacheManager.isBinaryOrArtifact(f.getName())) continue;
                     result.add(new FSNode(f));
                 }
                 sortNodes(result);
@@ -121,6 +122,7 @@ public class FSNode {
                 for (DocumentFile child : children) {
                     String childName = child.getName();
                     if (childName == null || childName.startsWith(".")) continue;
+                    if (com.example.util.BinaryCacheManager.isBinaryOrArtifact(childName)) continue;
 
                     File localChild = null;
                     if (file != null) {

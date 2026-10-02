@@ -18,11 +18,12 @@ public class CRunner implements LanguageRunner {
 
     @Override
     public String getCompileCommand(String sourcePath, String outputPath) {
-        return "clang \"" + sourcePath + "\" -o \"" + outputPath + "\"";
+        return "mkdir -p \"$HOME/.bin_cache\" && clang \"" + sourcePath + "\" -o \"" + outputPath + "\" && chmod +x \"" + outputPath + "\"";
     }
 
     @Override
     public String getRunCommand(String outputPath) {
-        return "stdbuf -o0 -e0 ./\"" + outputPath + "\" 2>/dev/null || ./\"" + outputPath + "\"";
+        String exec = (outputPath.startsWith("/") || outputPath.startsWith("$")) ? "\"" + outputPath + "\"" : "./\"" + outputPath + "\"";
+        return "stdbuf -o0 -e0 " + exec + " 2>/dev/null || " + exec;
     }
 }

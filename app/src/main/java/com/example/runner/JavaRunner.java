@@ -18,7 +18,7 @@ public class JavaRunner implements LanguageRunner {
 
     @Override
     public String getCompileCommand(String sourcePath, String outputPath) {
-        return "javac \"" + sourcePath + "\"";
+        return "mkdir -p \"$HOME/.bin_cache\" && javac -d \"$HOME/.bin_cache\" \"" + sourcePath + "\"";
     }
 
     @Override
@@ -32,6 +32,6 @@ public class JavaRunner implements LanguageRunner {
         } else if (name.endsWith(".out")) {
             name = name.substring(0, name.length() - 4);
         }
-        return "java " + name;
+        return "java -cp \"$HOME/.bin_cache:.\" " + name;
     }
 }

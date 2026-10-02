@@ -149,6 +149,9 @@ public class ExplorerTreeAdapter extends RecyclerView.Adapter<ExplorerTreeAdapte
         if (children == null) return;
 
         for (FSNode child : children) {
+            if (child == null || com.example.util.BinaryCacheManager.isBinaryOrArtifact(child.getName())) {
+                continue;
+            }
             boolean matchesSearch = currentSearchQuery.isEmpty() || child.getName().toLowerCase().contains(currentSearchQuery);
             if (child.isDirectory()) {
                 if (matchesSearch || hasMatchingDescendant(child, currentSearchQuery)) {
@@ -170,6 +173,7 @@ public class ExplorerTreeAdapter extends RecyclerView.Adapter<ExplorerTreeAdapte
         if (query.isEmpty()) return true;
         List<FSNode> children = dir.listChildren(context);
         for (FSNode c : children) {
+            if (c == null || com.example.util.BinaryCacheManager.isBinaryOrArtifact(c.getName())) continue;
             if (c.getName().toLowerCase().contains(query)) return true;
             if (c.isDirectory() && hasMatchingDescendant(c, query)) return true;
         }
