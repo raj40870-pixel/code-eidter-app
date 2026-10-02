@@ -14,6 +14,14 @@
         android:textSize="14sp"
         android:textStyle="bold" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="Tap to select or pinch-to-zoom directly on screen"
+        android:textColor="#888888"
+        android:textSize="11sp" />
+
     <RadioGroup
         android:id="@+id/rg_font_size"
         android:layout_width="match_parent"
@@ -71,7 +79,37 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginVertical="16dp"
+        android:layout_marginVertical="14dp"
+        android:background="#333333" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Editor Font Family"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="Select typography style for code rendering"
+        android:textColor="#888888"
+        android:textSize="11sp" />
+
+    <Spinner
+        android:id="@+id/spinner_font_family"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_autocomplete_popup"
+        android:padding="8dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginVertical="14dp"
         android:background="#333333" />
 
     <LinearLayout

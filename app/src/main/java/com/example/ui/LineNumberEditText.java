@@ -10,6 +10,9 @@ import android.text.Editable;
 import android.text.Layout;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.util.TypedValue;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatEditText;
@@ -26,6 +29,17 @@ public class LineNumberEditText extends AppCompatEditText {
     private int gutterWidth;
     private int digitCount = 2;
     private final float density;
+
+    // Pinch-to-zoom
+    private ScaleGestureDetector scaleGestureDetector;
+    private float currentFontSizeSp = 14.5f;
+    private static final float MIN_FONT_SIZE_SP = 9.0f;
+    private static final float MAX_FONT_SIZE_SP = 40.0f;
+    private OnFontSizeChangeListener onFontSizeChangeListener;
+
+    public interface OnFontSizeChangeListener {
+        void onFontSizeChanged(float newSizeSp);
+    }
 
     // Undo / Redo history
     private final LinkedList<String> undoStack = new LinkedList<>();
@@ -55,12 +69,46 @@ public class LineNumberEditText extends AppCompatEditText {
         setTypeface(Typeface.MONOSPACE);
         setBackgroundColor(Color.parseColor("#181818"));
         setTextColor(Color.parseColor("#E6E6E6"));
-        setTextSize(14.5f);
+        setFontSizeSp(14.5f);
 
         lineNumberPaint.setColor(Color.parseColor("#666666"));
         lineNumberPaint.setTextSize(getTextSize() * 0.85f);
         lineNumberPaint.setTypeface(Typeface.MONOSPACE);
         lineNumberPaint.setTextAlign(Paint.Align.RIGHT);
+
+        scaleGestureDetector = new ScaleGestureDetector(getContext(), new ScaleGestureDetector.SimpleOnScaleGestureListener() {
+            private float initialSpan;
+            private float initialSize;
+
+            @Override
+            public boolean onScaleBegin(ScaleGestureDetector detector) {
+                initialSpan = detector.getCurrentSpan();
+                initialSize = currentFontSizeSp;
+                return true;
+            }
+
+            @Override
+            public boolean onScale(ScaleGestureDetector detector) {
+                float span = detector.getCurrentSpan();
+                if (initialSpan > 0) {
+                    float ratio = span / initialSpan;
+                    float targetSize = initialSize * ratio;
+                    if (targetSize < MIN_FONT_SIZE_SP) targetSize = MIN_FONT_SIZE_SP;
+                    if (targetSize > MAX_FONT_SIZE_SP) targetSize = MAX_FONT_SIZE_SP;
+                    if (Math.abs(targetSize - currentFontSizeSp) >= 0.25f) {
+                        setFontSizeSp(targetSize);
+                    }
+                }
+                return true;
+            }
+
+            @Override
+            public void onScaleEnd(ScaleGestureDetector detector) {
+                if (onFontSizeChangeListener != null) {
+                    onFontSizeChangeListener.onFontSizeChanged(currentFontSizeSp);
+                }
+            }
+        });
 
         // Blends seamlessly like the reference screenshot
         gutterBgPaint.setColor(Color.parseColor("#181818"));
@@ -313,5 +361,64 @@ public class LineNumberEditText extends AppCompatEditText {
             setSelection(Math.min(next.length(), getSelectionStart()));
             isUndoRedoOperation = false;
         }
+    }
+
+    public void setOnFontSizeChangeListener(OnFontSizeChangeListener listener) {
+        this.onFontSizeChangeListener = listener;
+    }
+
+    public void setFontSizeSp(float sizeSp) {
+        if (sizeSp < MIN_FONT_SIZE_SP) sizeSp = MIN_FONT_SIZE_SP;
+        if (sizeSp > MAX_FONT_SIZE_SP) sizeSp = MAX_FONT_SIZE_SP;
+        this.currentFontSizeSp = sizeSp;
+        setTextSize(TypedValue.COMPLEX_UNIT_SP, currentFontSizeSp);
+    }
+
+    public float getFontSizeSp() {
+        return currentFontSizeSp;
+    }
+
+    @Override
+    public void setTextSize(int unit, float size) {
+        super.setTextSize(unit, size);
+        if (lineNumberPaint != null) {
+            lineNumberPaint.setTextSize(getTextSize() * 0.85f);
+            updateGutterWidth();
+            invalidate();
+        }
+    }
+
+    @Override
+    public void setTypeface(@Nullable Typeface tf) {
+        super.setTypeface(tf);
+        if (lineNumberPaint != null && tf != null) {
+            lineNumberPaint.setTypeface(tf);
+            updateGutterWidth();
+            invalidate();
+        }
+    }
+
+    @Override
+    public void setTypeface(@Nullable Typeface tf, int style) {
+        super.setTypeface(tf, style);
+        if (lineNumberPaint != null && tf != null) {
+            lineNumberPaint.setTypeface(tf);
+            updateGutterWidth();
+            invalidate();
+        }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (scaleGestureDetector != null) {
+            scaleGestureDetector.onTouchEvent(event);
+        }
+        if (event.getPointerCount() > 1) {
+            if (getParent() != null) {
+                getParent().requestDisallowInterceptTouchEvent(true);
+            }
+            return true;
+        }
+        return super.onTouchEvent(event);
     }
 }

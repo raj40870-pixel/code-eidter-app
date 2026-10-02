@@ -20,24 +20,28 @@ import android.text.TextWatcher;
 import android.app.Dialog;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -262,8 +266,14 @@ public class MainActivity extends AppCompatActivity {
     private void setupEditor() {
         float savedFontSize = prefs.getFloat("font_size", 14.5f);
         boolean savedWordWrap = prefs.getBoolean("word_wrap", false);
-        binding.codeEditor.setTextSize(savedFontSize);
+        String savedFontFamily = prefs.getString("font_family", "Monospace (Default)");
+        binding.codeEditor.setFontSizeSp(savedFontSize);
+        binding.codeEditor.setTypeface(getTypefaceForFont(savedFontFamily));
         binding.codeEditor.setHorizontallyScrolling(!savedWordWrap);
+
+        binding.codeEditor.setOnFontSizeChangeListener(newSizeSp -> {
+            prefs.edit().putFloat("font_size", newSizeSp).apply();
+        });
 
         // VS Code / Notepad++ style floating IntelliSense Auto-Complete
         autoCompleteManager = new CodeAutoCompleteManager(binding.codeEditor, suggestion -> {
@@ -726,7 +736,7 @@ public class MainActivity extends AppCompatActivity {
         popup.getMenu().add(0, 4, 3, "🛠️ Compiler Setup Guide");
         popup.getMenu().add(0, 5, 4, "📜 Open Source Licenses & Credits");
         popup.getMenu().add(0, 6, 5, "ℹ️ About Code Editor");
-        popup.getMenu().add(0, 7, 6, "🏠 Reset to CppStarter (Default)");
+        popup.getMenu().add(0, 7, 6, "🔄 Restart");
         popup.getMenu().add(0, 8, 7, "🌐 Official Website");
         popup.getMenu().add(0, 9, 8, "🔄 Check for Updates");
         popup.setOnMenuItemClickListener(item -> {
@@ -752,7 +762,7 @@ public class MainActivity extends AppCompatActivity {
                     showAboutDialog();
                     break;
                 case 7:
-                    resetToCppStarter();
+                    showRestartConfirmDialog();
                     break;
                 case 8:
                     com.example.util.AppUpdateManager.openWebsite(this);
@@ -764,6 +774,66 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
         popup.show();
+    }
+
+    private void showRestartConfirmDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Restart Environment")
+                .setMessage("Are you sure you want to restart?\n\nAll temporary editor files and project data will be reset. Your installed compilers and Linux packages will remain safe and intact.")
+                .setPositiveButton("Restart", (dialog, which) -> performRestart())
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void performRestart() {
+        try {
+            File starterDir = new File(termuxEnv.getProjectsPath(), "CppStarter");
+            if (starterDir.exists()) {
+                File[] files = starterDir.listFiles();
+                if (files != null) {
+                    for (File f : files) {
+                        deleteRecursively(f);
+                    }
+                }
+            } else {
+                starterDir.mkdirs();
+            }
+
+            File mainCpp = new File(starterDir, "main.cpp");
+            try (FileWriter writer = new FileWriter(mainCpp)) {
+                writer.write(TemplateManager.getTemplate("main.cpp"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            currentProject = new Project("CppStarter", "C++", starterDir.getAbsolutePath());
+            binding.tvProjectSubtitle.setText("CPPSTARTER");
+            explorerAdapter.clearExternalFolders();
+            explorerAdapter.setRootDirectory(starterDir);
+            if (editorTabsAdapter != null) {
+                editorTabsAdapter.clearTabs();
+            }
+            loadFile(FSNode.fromFile(mainCpp), true);
+            drawerLayout.closeDrawer(GravityCompat.START);
+            prefs.edit().remove("last_active_file_path").apply();
+            Toast.makeText(this, "Environment restarted successfully", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(this, "Restart error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void deleteRecursively(File fileOrDir) {
+        if (fileOrDir != null && fileOrDir.exists()) {
+            if (fileOrDir.isDirectory()) {
+                File[] children = fileOrDir.listFiles();
+                if (children != null) {
+                    for (File child : children) {
+                        deleteRecursively(child);
+                    }
+                }
+            }
+            fileOrDir.delete();
+        }
     }
 
     private void showBootstrapInstallDialog() {
@@ -1066,19 +1136,87 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
+    public static Typeface getTypefaceForFont(String fontName) {
+        if (fontName == null) return Typeface.MONOSPACE;
+        switch (fontName) {
+            case "Roboto Mono (Clean)":
+                return Typeface.create("sans-serif-monospace", Typeface.NORMAL);
+            case "Monospace Bold":
+                return Typeface.create("monospace", Typeface.BOLD);
+            case "Condensed Pro":
+                return Typeface.create("sans-serif-condensed", Typeface.NORMAL);
+            case "Sans-Serif Modern":
+                return Typeface.create("sans-serif", Typeface.NORMAL);
+            case "Serif Editorial":
+                return Typeface.create("serif", Typeface.NORMAL);
+            case "Casual Style":
+                return Typeface.create("casual", Typeface.NORMAL);
+            case "Monospace (Default)":
+            default:
+                return Typeface.MONOSPACE;
+        }
+    }
+
     private void showEditorSettingsDialog() {
         View view = LayoutInflater.from(this).inflate(R.layout.dialog_editor_settings, null);
         RadioGroup rgFontSize = view.findViewById(R.id.rg_font_size);
+        Spinner spinnerFontFamily = view.findViewById(R.id.spinner_font_family);
         SwitchMaterial switchWordWrap = view.findViewById(R.id.switch_word_wrap);
 
         float currentSize = prefs.getFloat("font_size", 14.5f);
         boolean currentWrap = prefs.getBoolean("word_wrap", false);
+        String currentFont = prefs.getString("font_family", "Monospace (Default)");
 
         if (currentSize <= 12f) rgFontSize.check(R.id.rb_font_12);
         else if (currentSize <= 14f) rgFontSize.check(R.id.rb_font_14);
         else if (currentSize <= 16f) rgFontSize.check(R.id.rb_font_16);
         else if (currentSize <= 18f) rgFontSize.check(R.id.rb_font_18);
         else rgFontSize.check(R.id.rb_font_20);
+
+        String[] fontOptions = new String[]{
+                "Monospace (Default)",
+                "Roboto Mono (Clean)",
+                "Monospace Bold",
+                "Condensed Pro",
+                "Sans-Serif Modern",
+                "Serif Editorial",
+                "Casual Style"
+        };
+
+        ArrayAdapter<String> fontAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, fontOptions) {
+            @NonNull
+            @Override
+            public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                View v = super.getView(position, convertView, parent);
+                if (v instanceof TextView) {
+                    ((TextView) v).setTextColor(Color.WHITE);
+                    ((TextView) v).setTextSize(13);
+                    ((TextView) v).setTypeface(getTypefaceForFont(fontOptions[position]));
+                }
+                return v;
+            }
+
+            @Override
+            public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                View v = super.getDropDownView(position, convertView, parent);
+                v.setBackgroundColor(Color.parseColor("#262626"));
+                if (v instanceof TextView) {
+                    ((TextView) v).setTextColor(Color.WHITE);
+                    ((TextView) v).setPadding(28, 28, 28, 28);
+                    ((TextView) v).setTypeface(getTypefaceForFont(fontOptions[position]));
+                }
+                return v;
+            }
+        };
+        fontAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerFontFamily.setAdapter(fontAdapter);
+
+        for (int i = 0; i < fontOptions.length; i++) {
+            if (fontOptions[i].equals(currentFont)) {
+                spinnerFontFamily.setSelection(i);
+                break;
+            }
+        }
 
         switchWordWrap.setChecked(currentWrap);
 
@@ -1094,14 +1232,17 @@ public class MainActivity extends AppCompatActivity {
                     else if (checkedId == R.id.rb_font_18) newSize = 18f;
                     else if (checkedId == R.id.rb_font_20) newSize = 20f;
 
+                    String selectedFont = (String) spinnerFontFamily.getSelectedItem();
                     boolean newWrap = switchWordWrap.isChecked();
 
                     prefs.edit()
                             .putFloat("font_size", newSize)
+                            .putString("font_family", selectedFont)
                             .putBoolean("word_wrap", newWrap)
                             .apply();
 
-                    binding.codeEditor.setTextSize(newSize);
+                    binding.codeEditor.setFontSizeSp(newSize);
+                    binding.codeEditor.setTypeface(getTypefaceForFont(selectedFont));
                     binding.codeEditor.setHorizontallyScrolling(!newWrap);
                     Toast.makeText(this, "Settings updated", Toast.LENGTH_SHORT).show();
                 })
