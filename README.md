@@ -1,15 +1,43 @@
 # CodeEditor IDE 🚀
 ### *A Powerful, Standalone Multi-Language Mobile IDE & Compiler for Android*
 
-[![Platform](https://img.shields.io/badge/Platform-Android_8.0+-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://android.com)
+[![Official Website](https://img.shields.io/badge/Official_Website-Live_on_Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://code-eidter-apk-website.vercel.app/)
+[![Latest Release](https://img.shields.io/badge/Latest_Release-v1.3.0_Signed-success?style=for-the-badge&logo=github&logoColor=white)](https://github.com/raj40870-pixel/code-eidter-app/releases)
+[![Direct APK Download](https://img.shields.io/badge/Direct_Download-CodeEditor--v1.3.0.apk-blue?style=for-the-badge&logo=android&logoColor=white)](https://code-eidter-apk-website.vercel.app/apk/CodeEditor-v1.3.0.apk)
+[![Platform](https://img.shields.io/badge/Platform-Android_7.0_to_15-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://android.com)
 [![Languages](https://img.shields.io/badge/Languages-14+-blue?style=for-the-badge&logo=codeforces&logoColor=white)](#-supported-languages--starter-files)
-[![Terminal](https://img.shields.io/badge/Engine-Embedded_Linux_Core-black?style=for-the-badge&logo=gnubash&logoColor=white)](https://github.com/raj40870-pixel/library)
-[![Build](https://img.shields.io/badge/Build-Gradle_Kotlin_DSL-02303A?style=for-the-badge&logo=gradle&logoColor=white)](#-how-to-build-apk-from-source)
+[![Compiler CDN](https://img.shields.io/badge/Compiler_Library-v1.3.0_CDN-purple?style=for-the-badge&logo=gnubash&logoColor=white)](https://github.com/raj40870-pixel/library)
 [![License](https://img.shields.io/badge/License-MIT-orange?style=for-the-badge)](LICENSE)
 
 ---
 
-## 🌟 Overview
+## 🌐 Official Website & Direct APK Download
+
+Visit our official web portal for setup tutorials, interactive screenshots, and one-tap APK installation:
+
+- 🔗 **Official Website**: [https://code-eidter-apk-website.vercel.app/](https://code-eidter-apk-website.vercel.app/)
+- ⬇️ **Direct APK Download (v1.3.0)**: [Download CodeEditor-v1.3.0.apk](https://code-eidter-apk-website.vercel.app/apk/CodeEditor-v1.3.0.apk) *(3.23 MB, Clean Signed Build)*
+- 📦 **GitHub Releases Portal**: [GitHub Releases v1.3.0](https://github.com/raj40870-pixel/code-eidter-app/releases)
+- 🗃️ **Compiler Toolchains CDN**: [Library Toolchain Packages](https://github.com/raj40870-pixel/library)
+
+---
+
+## 🚀 What's New in Version 1.3.0 (Latest Release)
+
+- 📁 **Smart Binary Isolation (`.bin_cache`)**:
+  When you compile and run `MainActivity.java` or `main.cpp`, compiled artifacts (such as `main.out` or `.class` binaries) are automatically routed into a private hidden cache directory (`$HOME/.bin_cache`). Your project file tree remains 100% clean with zero clutter!
+- ⏳ **24-Hour Binary Auto-Purge Policy**:
+  All compiled binaries and outputs in `.bin_cache` are governed by an automated 24-hour expiration rule. Files older than 24 hours are automatically purged on app launch and execution, preventing any storage accumulation.
+- ↔️ **Smooth Horizontal Code Scrolling**:
+  Long lines of code never wrap or get cut off! Enjoy smooth two-dimensional panning with pinned line numbers that stay perfectly aligned while you inspect complex expressions.
+- 🔄 **In-App Direct Auto-Update System**:
+  Check for the latest updates directly from the app's three-dots menu. The IDE communicates with the official release API, downloads APK updates with a live 0%–100% progress dialog, and triggers the Android package installer seamlessly.
+- 🔍 **Pinch-to-Zoom Scaling & Typography Font Selector**:
+  Effortlessly adjust editor scale with fluid multi-touch pinch-to-zoom and choose between Monospace, Sans-Serif, and Serif typography.
+- 🛡️ **Hardened ProGuard / R8 Obfuscation & Official Code Signing**:
+  The release APK is fully optimized with code shrinking, resource stripping, and signed with official release keys for optimal speed and battery efficiency.
+
+---
 
 **CodeEditor IDE** is an all-in-one, standalone development environment designed specifically for Android smartphones and tablets. It combines a feature-rich multi-tab code editor, a full-featured Linux terminal subsystem, and an automated cloud compiler package manager.
 
