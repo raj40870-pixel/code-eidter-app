@@ -2,8 +2,8 @@
 ### *A Powerful, Standalone Multi-Language Mobile IDE & Compiler for Android*
 
 [![Official Website](https://img.shields.io/badge/Official_Website-Live_on_Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://code-eidter-apk-website.vercel.app/)
-[![Latest Release](https://img.shields.io/badge/Latest_Release-v1.3.1_Signed-success?style=for-the-badge&logo=github&logoColor=white)](https://github.com/raj40870-pixel/code-eidter-app/releases)
-[![Direct APK Download](https://img.shields.io/badge/Direct_Download-CodeEditor--v1.3.1.apk-blue?style=for-the-badge&logo=android&logoColor=white)](https://code-eidter-apk-website.vercel.app/apk/CodeEditor-v1.3.1.apk)
+[![Latest Release](https://img.shields.io/badge/Latest_Release-v1.3.2_Signed-success?style=for-the-badge&logo=github&logoColor=white)](https://github.com/raj40870-pixel/code-eidter-app/releases)
+[![Direct APK Download](https://img.shields.io/badge/Direct_Download-CodeEditor--v1.3.2.apk-blue?style=for-the-badge&logo=android&logoColor=white)](https://code-eidter-apk-website.vercel.app/apk/CodeEditor-v1.3.2.apk)
 [![Platform](https://img.shields.io/badge/Platform-Android_7.0_to_15-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://android.com)
 [![Languages](https://img.shields.io/badge/Languages-14+-blue?style=for-the-badge&logo=codeforces&logoColor=white)](#-supported-languages--starter-files)
 [![Compiler CDN](https://img.shields.io/badge/Compiler_Library-v1.3.1_CDN-purple?style=for-the-badge&logo=gnubash&logoColor=white)](https://github.com/raj40870-pixel/library)
@@ -16,14 +16,16 @@
 Visit our official web portal for setup tutorials, interactive screenshots, and one-tap APK installation:
 
 - 🔗 **Official Website**: [https://code-eidter-apk-website.vercel.app/](https://code-eidter-apk-website.vercel.app/)
-- ⬇️ **Direct APK Download (v1.3.1)**: [Download CodeEditor-v1.3.1.apk](https://code-eidter-apk-website.vercel.app/apk/CodeEditor-v1.3.1.apk) *(3.23 MB, Clean Signed Build)*
-- 📦 **GitHub Releases Portal**: [GitHub Releases v1.3.1](https://github.com/raj40870-pixel/code-eidter-app/releases)
+- ⬇️ **Direct APK Download (v1.3.2)**: [Download CodeEditor-v1.3.2.apk](https://code-eidter-apk-website.vercel.app/apk/CodeEditor-v1.3.2.apk) *(3.23 MB, Clean Signed Build)*
+- 📦 **GitHub Releases Portal**: [GitHub Releases v1.3.2](https://github.com/raj40870-pixel/code-eidter-app/releases)
 - 🗃️ **Compiler Toolchains CDN**: [Library Toolchain Packages](https://github.com/raj40870-pixel/library)
 
 ---
 
-## 🚀 What's New in Version 1.3.1 (Latest Release)
+## 🚀 What's New in Version 1.3.2 (Latest Release)
 
+- ⚡ **Fixed W^X Permission Compatibility (Error 13)**:
+  Corrected execution policy by targeting Android SDK 28, completely resolving the SELinux W^X `Permission denied` (error 13) restriction when launching bash and offline compilers on Android 10+.
 - 🐙 **Official GitHub Repository In-App Access**:
   Direct 1-tap navigation to the official GitHub repository right from the IDE's three-dots (⋮) menu, allowing developers to explore source code, report issues, and star the project.
 - 📁 **Smart Binary Isolation (`.bin_cache`)**:
