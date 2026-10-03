@@ -15,9 +15,9 @@ android {
   defaultConfig {
     applicationId = "com.termux"
     minSdk = 24
-    targetSdk = 30
-    versionCode = 6
-    versionName = "1.3.1"
+    targetSdk = 28
+    versionCode = 7
+    versionName = "1.3.2"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
