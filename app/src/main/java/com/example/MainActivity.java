@@ -118,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
         setupEditorTabs();
         setupDrawerAndExplorers();
         setupToolbarActions();
+        setupFindAndReplace();
         setupTwoTierBottomBar();
         com.example.util.AppSecurity.checkTamperAndEnforce(this);
         checkStoragePermissions();
@@ -246,6 +247,9 @@ public class MainActivity extends AppCompatActivity {
         // TERMINAL button: directly opens or closes terminal anytime
         binding.btnToggleTerminal.setOnClickListener(v -> toggleTerminalVisibility());
 
+        // SEARCH / FIND & REPLACE button
+        binding.btnFindReplace.setOnClickListener(v -> toggleFindReplaceBar());
+
         // SAVE button: saves current file
         binding.btnSave.setOnClickListener(v -> {
             saveCurrentFile();
@@ -264,13 +268,115 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void toggleFindReplaceBar() {
+        if (binding.llFindReplaceBar.getVisibility() == View.VISIBLE) {
+            closeFindReplaceBar();
+        } else {
+            binding.llFindReplaceBar.setVisibility(View.VISIBLE);
+            binding.etFindQuery.requestFocus();
+            int start = binding.codeEditor.getSelectionStart();
+            int end = binding.codeEditor.getSelectionEnd();
+            if (start >= 0 && end > start) {
+                String selected = binding.codeEditor.getText().subSequence(start, end).toString();
+                if (!selected.contains("\n") && selected.length() < 100) {
+                    binding.etFindQuery.setText(selected);
+                    binding.etFindQuery.setSelection(selected.length());
+                }
+            }
+            doFind(binding.etFindQuery.getText().toString());
+        }
+    }
+
+    private void closeFindReplaceBar() {
+        binding.llFindReplaceBar.setVisibility(View.GONE);
+        binding.codeEditor.clearSearchHighlights();
+        binding.tvFindMatchCount.setText("0/0");
+    }
+
+    private void doFind(String query) {
+        int matches = binding.codeEditor.findMatches(query, false);
+        int current = binding.codeEditor.getCurrentMatchIndex();
+        updateFindCount(current, matches);
+    }
+
+    private void updateFindCount(int current, int total) {
+        if (total == 0) {
+            binding.tvFindMatchCount.setText("0/0");
+        } else {
+            binding.tvFindMatchCount.setText(current + "/" + total);
+        }
+    }
+
+    private void setupFindAndReplace() {
+        binding.btnFindClose.setOnClickListener(v -> closeFindReplaceBar());
+
+        binding.btnToggleReplaceRow.setOnClickListener(v -> {
+            boolean isReplaceVisible = binding.llReplaceRow.getVisibility() == View.VISIBLE;
+            binding.llReplaceRow.setVisibility(isReplaceVisible ? View.GONE : View.VISIBLE);
+            binding.btnToggleReplaceRow.setTextColor(isReplaceVisible ? Color.parseColor("#80D8FF") : Color.parseColor("#4CAF50"));
+        });
+
+        binding.etFindQuery.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                doFind(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+        binding.btnFindNext.setOnClickListener(v -> {
+            int current = binding.codeEditor.findNext();
+            updateFindCount(current, binding.codeEditor.getMatchCount());
+        });
+
+        binding.btnFindPrev.setOnClickListener(v -> {
+            int current = binding.codeEditor.findPrev();
+            updateFindCount(current, binding.codeEditor.getMatchCount());
+        });
+
+        binding.btnReplaceOne.setOnClickListener(v -> {
+            String replacement = binding.etReplaceQuery.getText().toString();
+            boolean replaced = binding.codeEditor.replaceCurrent(replacement);
+            if (replaced) {
+                updateFindCount(binding.codeEditor.getCurrentMatchIndex(), binding.codeEditor.getMatchCount());
+            } else {
+                Toast.makeText(this, "No match to replace", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        binding.btnReplaceAll.setOnClickListener(v -> {
+            String query = binding.etFindQuery.getText().toString();
+            String replacement = binding.etReplaceQuery.getText().toString();
+            if (query.isEmpty()) {
+                Toast.makeText(this, "Enter search query first", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            int replacedCount = binding.codeEditor.replaceAll(query, replacement, false);
+            updateFindCount(0, 0);
+            Toast.makeText(this, "Replaced " + replacedCount + " occurrence(s)", Toast.LENGTH_SHORT).show();
+        });
+    }
+
     private void setupEditor() {
         float savedFontSize = prefs.getFloat("font_size", 14.5f);
         boolean savedWordWrap = prefs.getBoolean("word_wrap", false);
         String savedFontFamily = prefs.getString("font_family", "Monospace (Default)");
+        String savedTheme = prefs.getString("editor_theme", "VS Code Dark");
+        boolean savedAutoClose = prefs.getBoolean("auto_close", true);
+
         binding.codeEditor.setFontSizeSp(savedFontSize);
         binding.codeEditor.setTypeface(getTypefaceForFont(savedFontFamily));
         binding.codeEditor.setHorizontallyScrolling(!savedWordWrap);
+        binding.codeEditor.setAutoCloseEnabled(savedAutoClose);
+
+        com.example.ui.SyntaxHighlighter.Theme currentTheme = com.example.ui.SyntaxHighlighter.getThemeByName(savedTheme);
+        com.example.ui.SyntaxHighlighter.setActiveTheme(currentTheme);
+        binding.codeEditor.applyTheme(currentTheme);
 
         binding.codeEditor.setOnFontSizeChangeListener(newSizeSp -> {
             prefs.edit().putFloat("font_size", newSizeSp).apply();
@@ -732,21 +838,26 @@ public class MainActivity extends AppCompatActivity {
         PopupMenu popup = new PopupMenu(this, anchor);
         boolean isLinuxInstalled = com.example.terminal.TermuxBootstrapInstaller.isInstalled(this);
         popup.getMenu().add(0, 1, 0, ">_ Open Terminal");
-        popup.getMenu().add(0, 2, 1, isLinuxInstalled ? "⚡ Reinstall Linux Environment" : "⚡ Install Linux Environment");
-        popup.getMenu().add(0, 3, 2, "⚙️ Editor Settings");
-        popup.getMenu().add(0, 4, 3, "🛠️ Compiler Setup Guide");
-        popup.getMenu().add(0, 5, 4, "📜 Open Source Licenses & Credits");
-        popup.getMenu().add(0, 6, 5, "ℹ️ About Code Editor");
-        popup.getMenu().add(0, 7, 6, "🔄 Restart");
-        popup.getMenu().add(0, 8, 7, "🌐 Official Website");
-        popup.getMenu().add(0, 10, 8, "🐙 Official GitHub Repository");
-        popup.getMenu().add(0, 9, 9, "🔄 Check for Updates");
+        popup.getMenu().add(0, 11, 1, "🔍 Find & Replace in File");
+        popup.getMenu().add(0, 2, 2, isLinuxInstalled ? "⚡ Reinstall Linux Environment" : "⚡ Install Linux Environment");
+        popup.getMenu().add(0, 3, 3, "🎨 Editor Settings & Themes");
+        popup.getMenu().add(0, 4, 4, "🛠️ Compiler Setup Guide");
+        popup.getMenu().add(0, 5, 5, "📜 Open Source Licenses & Credits");
+        popup.getMenu().add(0, 6, 6, "ℹ️ About Code Editor");
+        popup.getMenu().add(0, 7, 7, "🔄 Restart");
+        popup.getMenu().add(0, 8, 8, "🌐 Official Website");
+        popup.getMenu().add(0, 10, 9, "🐙 Official GitHub Repository");
+        popup.getMenu().add(0, 9, 10, "🔄 Check for Updates");
         popup.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
                 case 1:
                     drawerLayout.closeDrawer(GravityCompat.START);
                     binding.terminalSection.setVisibility(View.VISIBLE);
                     binding.terminalView.post(() -> binding.terminalView.fullScroll(View.FOCUS_DOWN));
+                    break;
+                case 11:
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                    toggleFindReplaceBar();
                     break;
                 case 2:
                     showBootstrapInstallDialog();
@@ -1166,11 +1277,15 @@ public class MainActivity extends AppCompatActivity {
         View view = LayoutInflater.from(this).inflate(R.layout.dialog_editor_settings, null);
         RadioGroup rgFontSize = view.findViewById(R.id.rg_font_size);
         Spinner spinnerFontFamily = view.findViewById(R.id.spinner_font_family);
+        Spinner spinnerEditorTheme = view.findViewById(R.id.spinner_editor_theme);
         SwitchMaterial switchWordWrap = view.findViewById(R.id.switch_word_wrap);
+        SwitchMaterial switchAutoClose = view.findViewById(R.id.switch_auto_close);
 
         float currentSize = prefs.getFloat("font_size", 14.5f);
         boolean currentWrap = prefs.getBoolean("word_wrap", false);
         String currentFont = prefs.getString("font_family", "Monospace (Default)");
+        String currentThemeName = prefs.getString("editor_theme", "VS Code Dark");
+        boolean currentAutoClose = prefs.getBoolean("auto_close", true);
 
         if (currentSize <= 12f) rgFontSize.check(R.id.rb_font_12);
         else if (currentSize <= 14f) rgFontSize.check(R.id.rb_font_14);
@@ -1223,10 +1338,52 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        String[] themeOptions = new String[]{
+                "VS Code Dark",
+                "Dracula",
+                "Monokai Pro",
+                "One Dark Pro",
+                "Matrix Neon"
+        };
+
+        ArrayAdapter<String> themeAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, themeOptions) {
+            @NonNull
+            @Override
+            public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                View v = super.getView(position, convertView, parent);
+                if (v instanceof TextView) {
+                    ((TextView) v).setTextColor(Color.WHITE);
+                    ((TextView) v).setTextSize(13);
+                }
+                return v;
+            }
+
+            @Override
+            public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                View v = super.getDropDownView(position, convertView, parent);
+                v.setBackgroundColor(Color.parseColor("#262626"));
+                if (v instanceof TextView) {
+                    ((TextView) v).setTextColor(Color.WHITE);
+                    ((TextView) v).setPadding(28, 28, 28, 28);
+                }
+                return v;
+            }
+        };
+        themeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerEditorTheme.setAdapter(themeAdapter);
+
+        for (int i = 0; i < themeOptions.length; i++) {
+            if (themeOptions[i].equals(currentThemeName)) {
+                spinnerEditorTheme.setSelection(i);
+                break;
+            }
+        }
+
         switchWordWrap.setChecked(currentWrap);
+        switchAutoClose.setChecked(currentAutoClose);
 
         new AlertDialog.Builder(this)
-                .setTitle("⚙️ Editor Settings")
+                .setTitle("⚙️ Editor Settings & Themes")
                 .setView(view)
                 .setPositiveButton("Done", (dialog, which) -> {
                     float newSize = 14.5f;
@@ -1238,17 +1395,27 @@ public class MainActivity extends AppCompatActivity {
                     else if (checkedId == R.id.rb_font_20) newSize = 20f;
 
                     String selectedFont = (String) spinnerFontFamily.getSelectedItem();
+                    String selectedTheme = (String) spinnerEditorTheme.getSelectedItem();
                     boolean newWrap = switchWordWrap.isChecked();
+                    boolean newAutoClose = switchAutoClose.isChecked();
 
                     prefs.edit()
                             .putFloat("font_size", newSize)
                             .putString("font_family", selectedFont)
                             .putBoolean("word_wrap", newWrap)
+                            .putString("editor_theme", selectedTheme)
+                            .putBoolean("auto_close", newAutoClose)
                             .apply();
 
                     binding.codeEditor.setFontSizeSp(newSize);
                     binding.codeEditor.setTypeface(getTypefaceForFont(selectedFont));
                     binding.codeEditor.setHorizontallyScrolling(!newWrap);
+                    binding.codeEditor.setAutoCloseEnabled(newAutoClose);
+
+                    com.example.ui.SyntaxHighlighter.Theme newTheme = com.example.ui.SyntaxHighlighter.getThemeByName(selectedTheme);
+                    com.example.ui.SyntaxHighlighter.setActiveTheme(newTheme);
+                    binding.codeEditor.applyTheme(newTheme);
+
                     Toast.makeText(this, "Settings updated", Toast.LENGTH_SHORT).show();
                 })
                 .setNegativeButton("Cancel", null)

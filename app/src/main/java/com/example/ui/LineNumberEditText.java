@@ -12,13 +12,19 @@ import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.MotionEvent;
+import android.text.Spannable;
+import android.text.style.BackgroundColorSpan;
 import android.view.ScaleGestureDetector;
 import android.view.ViewConfiguration;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatEditText;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class LineNumberEditText extends AppCompatEditText {
 
@@ -58,6 +64,29 @@ public class LineNumberEditText extends AppCompatEditText {
     private final LinkedList<String> redoStack = new LinkedList<>();
     private boolean isUndoRedoOperation = false;
     private static final int MAX_HISTORY = 50;
+
+    // Smart Auto-Closing Brackets & Quotes
+    private boolean autoCloseEnabled = true;
+    private boolean isSelfModifying = false;
+
+    // Theme & Syntax Highlighting
+    private SyntaxHighlighter.Theme currentTheme = SyntaxHighlighter.THEME_VS_CODE;
+    private String currentLanguage = "C++";
+    private final Runnable highlightRunnable = this::highlightSyntax;
+
+    // Search & Replace
+    public static class SearchSpan extends BackgroundColorSpan {
+        public SearchSpan(int color) {
+            super(color);
+        }
+    }
+
+    private final List<int[]> searchMatches = new ArrayList<>();
+    private int currentMatchIndex = -1;
+    private String lastSearchQuery = "";
+    private boolean lastMatchCase = false;
+    private static final int COLOR_MATCH = Color.parseColor("#4DFFEB3B");
+    private static final int COLOR_CURRENT_MATCH = Color.parseColor("#80FF9800");
 
     public LineNumberEditText(@NonNull Context context) {
         super(context);
@@ -138,17 +167,63 @@ public class LineNumberEditText extends AppCompatEditText {
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                if (!isUndoRedoOperation) {
+                if (!isUndoRedoOperation && !isSelfModifying) {
                     beforeText = s.toString();
                 }
             }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int count, int after) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (!autoCloseEnabled || isSelfModifying || isUndoRedoOperation) return;
+                if (count == 1 && before == 0 && start >= 0 && start < s.length()) {
+                    char c = s.charAt(start);
+                    if (c == '(' || c == '{' || c == '[' || c == '"' || c == '\'') {
+                        char closing;
+                        if (c == '(') closing = ')';
+                        else if (c == '{') closing = '}';
+                        else if (c == '[') closing = ']';
+                        else if (c == '"') closing = '"';
+                        else closing = '\'';
+
+                        final int insertPos = start + 1;
+                        post(() -> {
+                            if (isSelfModifying) return;
+                            isSelfModifying = true;
+                            try {
+                                Editable ed = getText();
+                                if (ed != null && insertPos <= ed.length()) {
+                                    ed.insert(insertPos, String.valueOf(closing));
+                                    setSelection(insertPos);
+                                }
+                            } finally {
+                                isSelfModifying = false;
+                            }
+                        });
+                    } else if (c == '\n' && start > 0) {
+                        char prev = s.charAt(start - 1);
+                        if (prev == '{' && start + 1 < s.length() && s.charAt(start + 1) == '}') {
+                            final int insertPos = start + 1;
+                            post(() -> {
+                                if (isSelfModifying) return;
+                                isSelfModifying = true;
+                                try {
+                                    Editable ed = getText();
+                                    if (ed != null && insertPos <= ed.length()) {
+                                        ed.insert(insertPos, "    \n");
+                                        setSelection(insertPos + 4);
+                                    }
+                                } finally {
+                                    isSelfModifying = false;
+                                }
+                            });
+                        }
+                    }
+                }
+            }
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (!isUndoRedoOperation && beforeText != null) {
+                if (!isUndoRedoOperation && !isSelfModifying && beforeText != null) {
                     undoStack.addLast(beforeText);
                     if (undoStack.size() > MAX_HISTORY) {
                         undoStack.removeFirst();
@@ -156,6 +231,10 @@ public class LineNumberEditText extends AppCompatEditText {
                     redoStack.clear();
                 }
                 updateGutterWidth();
+                if (!isSelfModifying) {
+                    removeCallbacks(highlightRunnable);
+                    postDelayed(highlightRunnable, 150);
+                }
             }
         });
     }
@@ -397,6 +476,196 @@ public class LineNumberEditText extends AppCompatEditText {
 
     public float getFontSizeSp() {
         return currentFontSizeSp;
+    }
+
+    public void setAutoCloseEnabled(boolean enabled) {
+        this.autoCloseEnabled = enabled;
+    }
+
+    public boolean isAutoCloseEnabled() {
+        return autoCloseEnabled;
+    }
+
+    public void setCurrentLanguage(String language) {
+        this.currentLanguage = language;
+        highlightSyntax();
+    }
+
+    public String getCurrentLanguage() {
+        return currentLanguage;
+    }
+
+    public void applyTheme(SyntaxHighlighter.Theme theme) {
+        if (theme == null) return;
+        this.currentTheme = theme;
+        setBackgroundColor(theme.bgColor);
+        setTextColor(theme.textColor);
+        gutterBgPaint.setColor(theme.gutterColor);
+        dividerPaint.setColor(theme.dividerColor);
+        lineNumberPaint.setColor(theme.lineNumberColor);
+        invalidate();
+        highlightSyntax();
+    }
+
+    public SyntaxHighlighter.Theme getCurrentTheme() {
+        return currentTheme;
+    }
+
+    public void highlightSyntax() {
+        if (isSelfModifying) return;
+        Editable s = getText();
+        if (s != null && s.length() > 0) {
+            isSelfModifying = true;
+            try {
+                SyntaxHighlighter.highlight(s, currentLanguage);
+            } finally {
+                isSelfModifying = false;
+            }
+        }
+    }
+
+    public int findMatches(String query, boolean matchCase) {
+        clearSearchHighlights();
+        this.lastSearchQuery = query;
+        this.lastMatchCase = matchCase;
+        if (query == null || query.isEmpty()) {
+            return 0;
+        }
+
+        Editable text = getText();
+        if (text == null || text.length() == 0) return 0;
+
+        String content = text.toString();
+        String target = matchCase ? content : content.toLowerCase();
+        String search = matchCase ? query : query.toLowerCase();
+
+        int index = 0;
+        while ((index = target.indexOf(search, index)) != -1) {
+            int end = index + search.length();
+            searchMatches.add(new int[]{index, end});
+            index = end;
+        }
+
+        if (!searchMatches.isEmpty()) {
+            currentMatchIndex = 0;
+            highlightSearchMatches();
+            scrollToMatch(currentMatchIndex);
+        }
+
+        return searchMatches.size();
+    }
+
+    public int findNext() {
+        if (searchMatches.isEmpty()) return 0;
+        currentMatchIndex = (currentMatchIndex + 1) % searchMatches.size();
+        highlightSearchMatches();
+        scrollToMatch(currentMatchIndex);
+        return currentMatchIndex + 1;
+    }
+
+    public int findPrev() {
+        if (searchMatches.isEmpty()) return 0;
+        currentMatchIndex = (currentMatchIndex - 1 + searchMatches.size()) % searchMatches.size();
+        highlightSearchMatches();
+        scrollToMatch(currentMatchIndex);
+        return currentMatchIndex + 1;
+    }
+
+    public int getCurrentMatchIndex() {
+        return searchMatches.isEmpty() ? 0 : currentMatchIndex + 1;
+    }
+
+    public int getMatchCount() {
+        return searchMatches.size();
+    }
+
+    private void highlightSearchMatches() {
+        Editable text = getText();
+        if (text == null) return;
+
+        SearchSpan[] oldSpans = text.getSpans(0, text.length(), SearchSpan.class);
+        for (SearchSpan span : oldSpans) {
+            text.removeSpan(span);
+        }
+
+        for (int i = 0; i < searchMatches.size(); i++) {
+            int[] match = searchMatches.get(i);
+            int color = (i == currentMatchIndex) ? COLOR_CURRENT_MATCH : COLOR_MATCH;
+            text.setSpan(new SearchSpan(color), match[0], match[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+    }
+
+    private void scrollToMatch(int index) {
+        if (index < 0 || index >= searchMatches.size()) return;
+        int[] match = searchMatches.get(index);
+        setSelection(match[0], match[1]);
+
+        Layout layout = getLayout();
+        if (layout != null) {
+            int line = layout.getLineForOffset(match[0]);
+            int y = layout.getLineTop(line);
+            scrollTo(getScrollX(), Math.max(0, y - getHeight() / 3));
+        }
+    }
+
+    public boolean replaceCurrent(String replacement) {
+        if (replacement == null) replacement = "";
+        if (currentMatchIndex < 0 || currentMatchIndex >= searchMatches.size()) return false;
+
+        int[] match = searchMatches.get(currentMatchIndex);
+        isSelfModifying = true;
+        try {
+            Editable text = getText();
+            if (text != null && match[0] <= text.length() && match[1] <= text.length()) {
+                text.replace(match[0], match[1], replacement);
+            }
+        } finally {
+            isSelfModifying = false;
+        }
+
+        findMatches(lastSearchQuery, lastMatchCase);
+        return true;
+    }
+
+    public int replaceAll(String query, String replacement, boolean matchCase) {
+        if (query == null || query.isEmpty()) return 0;
+        if (replacement == null) replacement = "";
+
+        Editable text = getText();
+        if (text == null || text.length() == 0) return 0;
+
+        int count = findMatches(query, matchCase);
+        if (count == 0) return 0;
+
+        String original = text.toString();
+        String replaced;
+        if (matchCase) {
+            replaced = original.replace(query, replacement);
+        } else {
+            replaced = Pattern.compile(Pattern.quote(query), Pattern.CASE_INSENSITIVE).matcher(original).replaceAll(Matcher.quoteReplacement(replacement));
+        }
+
+        isSelfModifying = true;
+        try {
+            text.replace(0, text.length(), replaced);
+        } finally {
+            isSelfModifying = false;
+        }
+
+        clearSearchHighlights();
+        return count;
+    }
+
+    public void clearSearchHighlights() {
+        Editable text = getText();
+        if (text != null) {
+            SearchSpan[] oldSpans = text.getSpans(0, text.length(), SearchSpan.class);
+            for (SearchSpan span : oldSpans) {
+                text.removeSpan(span);
+            }
+        }
+        searchMatches.clear();
+        currentMatchIndex = -1;
     }
 
     @Override

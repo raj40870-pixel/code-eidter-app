@@ -16,8 +16,8 @@ android {
     applicationId = "com.termux"
     minSdk = 24
     targetSdk = 28
-    versionCode = 7
-    versionName = "1.3.2"
+    versionCode = 8
+    versionName = "1.4.0"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }

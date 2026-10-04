@@ -107,6 +107,17 @@
                 android:clickable="true"
                 android:focusable="true" />
 
+            <!-- Search / Find & Replace Icon Button -->
+            <ImageView
+                android:id="@+id/btn_find_replace"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:padding="10dp"
+                android:src="@android:drawable/ic_menu_search"
+                app:tint="@color/white"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Find and Replace" />
+
             <!-- Save Icon Button (Floppy Disk) -->
             <ImageView
                 android:id="@+id/btn_save"
@@ -150,6 +161,163 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@color/divider_color" />
+
+        <!-- Find & Replace Floating/Docked Panel -->
+        <LinearLayout
+            android:id="@+id/ll_find_replace_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#202020"
+            android:orientation="vertical"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="6dp"
+            android:visibility="gone">
+
+            <!-- Row 1: Find query, Match count, Prev, Next, Toggle Replace, Close -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/et_find_query"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_autocomplete_popup"
+                    android:hint="Find in file..."
+                    android:imeOptions="actionSearch"
+                    android:inputType="textNoSuggestions"
+                    android:paddingHorizontal="8dp"
+                    android:textColor="@color/white"
+                    android:textColorHint="#777777"
+                    android:textSize="12.5sp" />
+
+                <TextView
+                    android:id="@+id/tv_find_match_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="6dp"
+                    android:text="0/0"
+                    android:textColor="#AAAAAA"
+                    android:textSize="11.5sp"
+                    android:fontFamily="monospace" />
+
+                <!-- Prev match -->
+                <ImageView
+                    android:id="@+id/btn_find_prev"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:contentDescription="Previous Match"
+                    android:focusable="true"
+                    android:padding="6dp"
+                    android:src="@android:drawable/arrow_up_float"
+                    app:tint="#CCCCCC" />
+
+                <!-- Next match -->
+                <ImageView
+                    android:id="@+id/btn_find_next"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:contentDescription="Next Match"
+                    android:focusable="true"
+                    android:padding="6dp"
+                    android:src="@android:drawable/arrow_down_float"
+                    app:tint="#CCCCCC" />
+
+                <!-- Toggle Replace Row -->
+                <TextView
+                    android:id="@+id/btn_toggle_replace_row"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:paddingHorizontal="6dp"
+                    android:text="REPL"
+                    android:textColor="#80D8FF"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <!-- Close Find Bar -->
+                <ImageView
+                    android:id="@+id/btn_find_close"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:contentDescription="Close Find Bar"
+                    android:focusable="true"
+                    android:padding="8dp"
+                    android:src="@android:drawable/ic_menu_close_clear_cancel"
+                    app:tint="#FF5252" />
+            </LinearLayout>
+
+            <!-- Row 2: Replace query, Replace One, Replace All (collapsible) -->
+            <LinearLayout
+                android:id="@+id/ll_replace_row"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:layout_marginTop="5dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/et_replace_query"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_autocomplete_popup"
+                    android:hint="Replace with..."
+                    android:imeOptions="actionDone"
+                    android:inputType="textNoSuggestions"
+                    android:paddingHorizontal="8dp"
+                    android:textColor="@color/white"
+                    android:textColorHint="#777777"
+                    android:textSize="12.5sp" />
+
+                <TextView
+                    android:id="@+id/btn_replace_one"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/bg_autocomplete_popup"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:paddingHorizontal="10dp"
+                    android:text="Replace"
+                    android:textColor="#E0E0E0"
+                    android:textSize="11.5sp" />
+
+                <TextView
+                    android:id="@+id/btn_replace_all"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/bg_autocomplete_popup"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:paddingHorizontal="10dp"
+                    android:text="All"
+                    android:textColor="#80D8FF"
+                    android:textSize="11.5sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="6dp"
+                android:background="#2E2E2E" />
+        </LinearLayout>
 
         <!-- Code Editor Area (Full Height, Deep Dark Background) -->
         <FrameLayout

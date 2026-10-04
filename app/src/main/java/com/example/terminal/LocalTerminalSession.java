@@ -102,6 +102,7 @@ public class LocalTerminalSession implements TerminalSession {
                 }
                 pb.redirectErrorStream(true);
 
+                long startMs = System.currentTimeMillis();
                 activeProcess = pb.start();
 
                 // Live read stdout + stderr with immediate flushing
@@ -118,11 +119,15 @@ public class LocalTerminalSession implements TerminalSession {
                 }
 
                 int exitCode = activeProcess.waitFor();
+                long elapsedMs = System.currentTimeMillis() - startMs;
+                double elapsedSec = elapsedMs / 1000.0;
+                String timeFormatted = String.format(java.util.Locale.US, "%.2fs", elapsedSec);
+
                 if (outputListener != null) {
                     if (exitCode == 0) {
-                        outputListener.onOutput("\n\u001B[32m[Process completed successfully (exit code 0)]\u001B[0m\n");
+                        outputListener.onOutput("\n\u001B[32m[⚡ Finished in " + timeFormatted + " | Exit code 0]\u001B[0m\n");
                     } else {
-                        outputListener.onOutput("\n\u001B[33m[Process exited with code " + exitCode + "]\u001B[0m\n");
+                        outputListener.onOutput("\n\u001B[33m[⚡ Finished in " + timeFormatted + " | Exit code " + exitCode + "]\u001B[0m\n");
                     }
                 }
 
