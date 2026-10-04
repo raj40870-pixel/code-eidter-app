@@ -81,7 +81,7 @@ public class AppUpdateManager {
                     int currentVersionCode = BuildConfig.VERSION_CODE;
 
                     activity.runOnUiThread(() -> {
-                        if (serverVersionCode > currentVersionCode) {
+                        if (serverVersionCode > currentVersionCode || !serverVersionName.equals(BuildConfig.VERSION_NAME)) {
                             showUpdateDialog(activity, serverVersionName, releaseNotes, apkUrl);
                         } else if (isManualCheck) {
                             new AlertDialog.Builder(activity)
