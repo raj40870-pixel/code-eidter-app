@@ -2,7 +2,7 @@
 ### *A Powerful, Standalone Multi-Language Mobile IDE & Compiler for Android*
 
 [![Official Website](https://img.shields.io/badge/Official_Website-Live_on_Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://code-eidter-apk-website.vercel.app/)
-[![Latest Release](https://img.shields.io/badge/Latest_Release-v1.3.2_Signed-success?style=for-the-badge&logo=github&logoColor=white)](https://github.com/raj40870-pixel/code-eidter-app/releases)
+[![Latest Release](https://img.shields.io/badge/Latest_Release-v1.3.2_Signed-success?style=for-the-badge&logo=android&logoColor=white)](https://code-eidter-apk-website.vercel.app/apk/CodeEditor-v1.3.2.apk)
 [![Direct APK Download](https://img.shields.io/badge/Direct_Download-CodeEditor--v1.3.2.apk-blue?style=for-the-badge&logo=android&logoColor=white)](https://code-eidter-apk-website.vercel.app/apk/CodeEditor-v1.3.2.apk)
 [![Platform](https://img.shields.io/badge/Platform-Android_7.0_to_15-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://android.com)
 [![Languages](https://img.shields.io/badge/Languages-14+-blue?style=for-the-badge&logo=codeforces&logoColor=white)](#-supported-languages--starter-files)
@@ -17,7 +17,6 @@ Visit our official web portal for setup tutorials, interactive screenshots, and 
 
 - 🔗 **Official Website**: [https://code-eidter-apk-website.vercel.app/](https://code-eidter-apk-website.vercel.app/)
 - ⬇️ **Direct APK Download (v1.3.2)**: [Download CodeEditor-v1.3.2.apk](https://code-eidter-apk-website.vercel.app/apk/CodeEditor-v1.3.2.apk) *(3.23 MB, Clean Signed Build)*
-- 📦 **GitHub Releases Portal**: [GitHub Releases v1.3.2](https://github.com/raj40870-pixel/code-eidter-app/releases)
 - 🗃️ **Compiler Toolchains CDN**: [Library Toolchain Packages](https://github.com/raj40870-pixel/library)
 
 ---
