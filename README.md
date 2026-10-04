@@ -6,7 +6,7 @@
 [![Direct APK Download](https://img.shields.io/badge/Direct_Download-CodeEditor--v1.3.4.apk-blue?style=for-the-badge&logo=android&logoColor=white)](https://code-eidter-apk-website.vercel.app/apk/CodeEditor-v1.3.4.apk)
 [![Platform](https://img.shields.io/badge/Platform-Android_7.0_to_15-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://android.com)
 [![Languages](https://img.shields.io/badge/Languages-14+-blue?style=for-the-badge&logo=codeforces&logoColor=white)](#-supported-languages--starter-files)
-[![Compiler CDN](https://img.shields.io/badge/Compiler_Library-v1.3.1_CDN-purple?style=for-the-badge&logo=gnubash&logoColor=white)](https://github.com/raj40870-pixel/library)
+[![Compiler CDN](https://img.shields.io/badge/Compiler_Library-Official_CDN-purple?style=for-the-badge&logo=gnubash&logoColor=white)](https://github.com/raj40870-pixel/library)
 [![License](https://img.shields.io/badge/License-MIT-orange?style=for-the-badge)](LICENSE)
 
 ---
