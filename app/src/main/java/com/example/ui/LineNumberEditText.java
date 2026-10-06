@@ -69,6 +69,9 @@ public class LineNumberEditText extends AppCompatEditText {
     private boolean autoCloseEnabled = true;
     private boolean isSelfModifying = false;
 
+    // Smart Java Case Auto-Correction
+    private boolean javaCaseFixEnabled = true;
+
     // Theme & Syntax Highlighting
     private SyntaxHighlighter.Theme currentTheme = SyntaxHighlighter.THEME_VS_CODE;
     private String currentLanguage = "C++";
@@ -160,7 +163,17 @@ public class LineNumberEditText extends AppCompatEditText {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (!autoCloseEnabled || isSelfModifying || isUndoRedoOperation) return;
+                if (isSelfModifying || isUndoRedoOperation) return;
+
+                // Smart Java Case Auto-Correction
+                if (javaCaseFixEnabled && isJavaFile() && count == 1 && before == 0 && start >= 0 && start < s.length()) {
+                    char c = s.charAt(start);
+                    if (c == ' ' || c == '\n' || c == '.' || c == '(' || c == ';' || c == ',' || c == '<' || c == '[' || c == '}' || c == ')' || c == ']') {
+                        checkAndApplyJavaCaseFix(s, start, c);
+                    }
+                }
+
+                if (!autoCloseEnabled) return;
                 if (count == 1 && before == 0 && start >= 0 && start < s.length()) {
                     char c = s.charAt(start);
                     if (c == '(' || c == '{' || c == '[' || c == '"' || c == '\'') {
@@ -312,6 +325,14 @@ public class LineNumberEditText extends AppCompatEditText {
         Editable editable = getText();
         if (editable == null) return;
 
+        // Auto-fix preceding Java case if typing delimiter symbol
+        if (isJavaFile() && javaCaseFixEnabled && start == end && start > 0 && symbol != null && !symbol.isEmpty()) {
+            char firstChar = symbol.charAt(0);
+            if (firstChar == '.' || firstChar == ';' || firstChar == '(' || firstChar == '{' || firstChar == '[' || firstChar == ',' || firstChar == ':') {
+                checkAndApplyJavaCaseFix(editable, start, firstChar);
+            }
+        }
+
         if (symbol.equals("Tab")) {
             editable.replace(start, end, "    ");
             setSelection(start + 4);
@@ -351,8 +372,13 @@ public class LineNumberEditText extends AppCompatEditText {
                 editable.insert(start, "''");
                 setSelection(start + 1);
             } else {
-                editable.insert(start, symbol);
-                setSelection(start + symbol.length());
+                isSelfModifying = true;
+                try {
+                    editable.insert(start, symbol);
+                    setSelection(start + symbol.length());
+                } finally {
+                    isSelfModifying = false;
+                }
             }
         }
     }
@@ -470,6 +496,67 @@ public class LineNumberEditText extends AppCompatEditText {
 
     public boolean isAutoCloseEnabled() {
         return autoCloseEnabled;
+    }
+
+    public void setJavaCaseFixEnabled(boolean enabled) {
+        this.javaCaseFixEnabled = enabled;
+    }
+
+    public boolean isJavaCaseFixEnabled() {
+        return javaCaseFixEnabled;
+    }
+
+    public boolean isJavaFile() {
+        return currentLanguage != null && (
+                currentLanguage.toLowerCase().endsWith(".java") ||
+                currentLanguage.equalsIgnoreCase("java")
+        );
+    }
+
+    private void checkAndApplyJavaCaseFix(CharSequence s, int triggerPos, char triggerChar) {
+        if (triggerPos <= 0 || s == null) return;
+        if (JavaCaseHelper.isInsideStringOrComment(s, triggerPos)) return;
+
+        int wordEnd = triggerPos;
+        int wordStart = triggerPos;
+        while (wordStart > 0) {
+            char prev = s.charAt(wordStart - 1);
+            if (Character.isLetterOrDigit(prev) || prev == '_' || prev == '@') {
+                wordStart--;
+            } else {
+                break;
+            }
+        }
+
+        if (wordStart < wordEnd) {
+            String word = s.subSequence(wordStart, wordEnd).toString();
+            String replacement = JavaCaseHelper.getReplacement(word, triggerChar);
+            if (replacement != null && !replacement.equals(word)) {
+                final int wStart = wordStart;
+                final int wEnd = wordEnd;
+                final String finalReplacement = replacement;
+                post(() -> {
+                    if (isSelfModifying) return;
+                    isSelfModifying = true;
+                    try {
+                        Editable ed = getText();
+                        if (ed != null && wEnd <= ed.length()) {
+                            String current = ed.subSequence(wStart, wEnd).toString();
+                            if (current.equals(word)) {
+                                int oldCursor = getSelectionStart();
+                                ed.replace(wStart, wEnd, finalReplacement);
+                                int diff = finalReplacement.length() - word.length();
+                                if (diff != 0 && oldCursor >= wEnd) {
+                                    setSelection(Math.min(ed.length(), oldCursor + diff));
+                                }
+                            }
+                        }
+                    } finally {
+                        isSelfModifying = false;
+                    }
+                });
+            }
+        }
     }
 
     public void setCurrentLanguage(String language) {

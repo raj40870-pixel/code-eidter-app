@@ -2,8 +2,8 @@
 ### *A Powerful, Standalone Multi-Language Mobile IDE & Compiler for Android*
 
 [![Official Website](https://img.shields.io/badge/Official_Website-Live_on_Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://code-eidter-apk-website.vercel.app/)
-[![Latest Release](https://img.shields.io/badge/Latest_Release-v1.3.4_Signed-success?style=for-the-badge&logo=android&logoColor=white)](https://code-eidter-apk-website.vercel.app/apk/CodeEditor-v1.3.4.apk)
-[![Direct APK Download](https://img.shields.io/badge/Direct_Download-CodeEditor--v1.3.4.apk-blue?style=for-the-badge&logo=android&logoColor=white)](https://code-eidter-apk-website.vercel.app/apk/CodeEditor-v1.3.4.apk)
+[![Latest Release](https://img.shields.io/badge/Latest_Release-v1.3.5_Signed-success?style=for-the-badge&logo=android&logoColor=white)](https://code-eidter-apk-website.vercel.app/apk/CodeEditor-v1.3.5.apk)
+[![Direct APK Download](https://img.shields.io/badge/Direct_Download-CodeEditor--v1.3.5.apk-blue?style=for-the-badge&logo=android&logoColor=white)](https://code-eidter-apk-website.vercel.app/apk/CodeEditor-v1.3.5.apk)
 [![Platform](https://img.shields.io/badge/Platform-Android_7.0_to_15-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://android.com)
 [![Languages](https://img.shields.io/badge/Languages-14+-blue?style=for-the-badge&logo=codeforces&logoColor=white)](#-supported-languages--starter-files)
 [![Compiler CDN](https://img.shields.io/badge/Compiler_Library-Official_CDN-purple?style=for-the-badge&logo=gnubash&logoColor=white)](https://github.com/raj40870-pixel/library)
@@ -16,12 +16,29 @@
 Visit our official web portal for setup tutorials, interactive screenshots, and one-tap APK installation:
 
 - 🔗 **Official Website**: [https://code-eidter-apk-website.vercel.app/](https://code-eidter-apk-website.vercel.app/)
-- ⬇️ **Direct APK Download (v1.3.4)**: [Download CodeEditor-v1.3.4.apk](https://code-eidter-apk-website.vercel.app/apk/CodeEditor-v1.3.4.apk) *(3.23 MB, Clean Signed Build)*
+- ⬇️ **Direct APK Download (v1.3.5)**: [Download CodeEditor-v1.3.5.apk](https://code-eidter-apk-website.vercel.app/apk/CodeEditor-v1.3.5.apk) *(3.38 MB, Clean Signed Build)*
 - 🗃️ **Compiler Toolchains CDN**: [Library Toolchain Packages](https://github.com/raj40870-pixel/library)
 
 ---
 
-## 🚀 What's New in Version 1.3.4 (Latest Release)
+## 🚀 What's New in Version 1.3.5 (Latest Release)
+
+- ⌨️ **Comprehensive 39-Key Accessory Symbol Bar**:
+  Never toggle Android soft-keyboard symbol layouts again! Directly accessible above the keyboard with smooth horizontal scrolling:
+  `Tab`, `.`, `:`, `;`, `,`, `=`, `{}`, `()`, `[]`, `{`, `}`, `(`, `)`, `[`, `]`, `"`, `'`, `/`, `\`, `+`, `-`, `*`, `%`, `!`, `&`, `|`, `<`, `>`, `?`, `@`, `#`, `$`, `_`, `^`, `~`, `` ` ``, `->`, `=>`, `::`.
+  Includes individual brackets and quote insertion without accidental auto-closing conflicts.
+- ☕ **Smart Java Case Auto-Correction Engine**:
+  Solves mobile soft-keyboard auto-capitalization and case-sensitivity typing friction:
+  - **Keyword Auto-Lowercase**: Automatically converts mobile-capitalized keywords (`Public` ➔ `public`, `Class` ➔ `class`, `Static` ➔ `static`, `Void` ➔ `void`, `Int` ➔ `int`, `If` ➔ `if`, `For` ➔ `for`, `Return` ➔ `return`).
+  - **Standard Class Auto-PascalCase**: Corrects frequently typed lowercase Java standard library classes (`system.` ➔ `System.`, `string` ➔ `String`, `scanner` ➔ `Scanner`, `math.` ➔ `Math.`, `arraylist` ➔ `ArrayList`, `hashmap` ➔ `HashMap`, `@override` ➔ `@Override`).
+  - **Context-Aware Safety**: Automatically ignores text inside string literals (`"..."`) and comments (`//`, `/* */`).
+  - **Full-Document Save Fix**: Automatically verifies and cleans Java casing upon saving or running code.
+- ⚙️ **Java Smart Case Toggle in Settings**:
+  Easily turn Java Smart Case Auto-Fix ON or OFF anytime in **Editor Settings & Themes**.
+
+---
+
+## 🚀 What's New in Version 1.3.4
 
 - ⏱️ **Code Execution Timer & Exit Code Benchmark**:
   Real-time execution duration benchmark (with millisecond precision) and process exit code are automatically printed in the terminal upon program completion (`[⚡ Finished in 0.18s | Exit code 0]`).

@@ -270,11 +270,13 @@ public class MainActivity extends AppCompatActivity {
         String savedFontFamily = prefs.getString("font_family", "Monospace (Default)");
         String savedTheme = prefs.getString("editor_theme", "VS Code Dark");
         boolean savedAutoClose = prefs.getBoolean("auto_close", true);
+        boolean savedJavaCaseFix = prefs.getBoolean("java_case_fix", true);
 
         binding.codeEditor.setFontSizeSp(savedFontSize);
         binding.codeEditor.setTypeface(getTypefaceForFont(savedFontFamily));
         binding.codeEditor.setHorizontallyScrolling(!savedWordWrap);
         binding.codeEditor.setAutoCloseEnabled(savedAutoClose);
+        binding.codeEditor.setJavaCaseFixEnabled(savedJavaCaseFix);
 
         com.example.ui.SyntaxHighlighter.Theme currentTheme = com.example.ui.SyntaxHighlighter.getThemeByName(savedTheme);
         com.example.ui.SyntaxHighlighter.setActiveTheme(currentTheme);
@@ -372,9 +374,13 @@ public class MainActivity extends AppCompatActivity {
         // Tier 2: Symbols
         binding.llSymbols.removeAllViews();
         String[] symbols = {
-                "Tab", "{}", "()", "[]", "\"\"", "''", ";", "=>", "=", "\\",
-                "&", ",", "+", "-", "!", "::", "->", "_", "*", "#", "%",
-                "<", ">", "@", "?"
+                "Tab", ".", ":", ";", ",", "=",
+                "{}", "()", "[]",
+                "{", "}", "(", ")", "[", "]",
+                "\"", "'", "/", "\\",
+                "+", "-", "*", "%", "!", "&", "|",
+                "<", ">", "?", "@", "#", "$", "_", "^", "~", "`",
+                "->", "=>", "::"
         };
 
         for (String sym : symbols) {
@@ -1177,12 +1183,14 @@ public class MainActivity extends AppCompatActivity {
         Spinner spinnerEditorTheme = view.findViewById(R.id.spinner_editor_theme);
         SwitchMaterial switchWordWrap = view.findViewById(R.id.switch_word_wrap);
         SwitchMaterial switchAutoClose = view.findViewById(R.id.switch_auto_close);
+        SwitchMaterial switchJavaCaseFix = view.findViewById(R.id.switch_java_case_fix);
 
         float currentSize = prefs.getFloat("font_size", 14.5f);
         boolean currentWrap = prefs.getBoolean("word_wrap", false);
         String currentFont = prefs.getString("font_family", "Monospace (Default)");
         String currentThemeName = prefs.getString("editor_theme", "VS Code Dark");
         boolean currentAutoClose = prefs.getBoolean("auto_close", true);
+        boolean currentJavaCaseFix = prefs.getBoolean("java_case_fix", true);
 
         if (currentSize <= 12f) rgFontSize.check(R.id.rb_font_12);
         else if (currentSize <= 14f) rgFontSize.check(R.id.rb_font_14);
@@ -1278,6 +1286,7 @@ public class MainActivity extends AppCompatActivity {
 
         switchWordWrap.setChecked(currentWrap);
         switchAutoClose.setChecked(currentAutoClose);
+        switchJavaCaseFix.setChecked(currentJavaCaseFix);
 
         new AlertDialog.Builder(this)
                 .setTitle("⚙️ Editor Settings & Themes")
@@ -1295,6 +1304,7 @@ public class MainActivity extends AppCompatActivity {
                     String selectedTheme = (String) spinnerEditorTheme.getSelectedItem();
                     boolean newWrap = switchWordWrap.isChecked();
                     boolean newAutoClose = switchAutoClose.isChecked();
+                    boolean newJavaCaseFix = switchJavaCaseFix.isChecked();
 
                     prefs.edit()
                             .putFloat("font_size", newSize)
@@ -1302,12 +1312,14 @@ public class MainActivity extends AppCompatActivity {
                             .putBoolean("word_wrap", newWrap)
                             .putString("editor_theme", selectedTheme)
                             .putBoolean("auto_close", newAutoClose)
+                            .putBoolean("java_case_fix", newJavaCaseFix)
                             .apply();
 
                     binding.codeEditor.setFontSizeSp(newSize);
                     binding.codeEditor.setTypeface(getTypefaceForFont(selectedFont));
                     binding.codeEditor.setHorizontallyScrolling(!newWrap);
                     binding.codeEditor.setAutoCloseEnabled(newAutoClose);
+                    binding.codeEditor.setJavaCaseFixEnabled(newJavaCaseFix);
 
                     com.example.ui.SyntaxHighlighter.Theme newTheme = com.example.ui.SyntaxHighlighter.getThemeByName(selectedTheme);
                     com.example.ui.SyntaxHighlighter.setActiveTheme(newTheme);
@@ -1485,10 +1497,17 @@ public class MainActivity extends AppCompatActivity {
         isUpdatingText = true;
         binding.codeEditor.setText(content);
         isUpdatingText = false;
+        binding.codeEditor.setCurrentLanguage(node.getName());
         SyntaxHighlighter.highlight(binding.codeEditor.getText(), node.getName());
     }
 
     private void saveCurrentFile() {
+        if (binding.codeEditor.isJavaFile() && binding.codeEditor.isJavaCaseFixEnabled()) {
+            Editable text = binding.codeEditor.getText();
+            if (text != null) {
+                com.example.ui.JavaCaseHelper.fixAllJavaCases(text);
+            }
+        }
         if (currentFSNode != null) {
             currentFSNode.writeContent(this, binding.codeEditor.getText().toString());
         } else if (currentFile != null) {
