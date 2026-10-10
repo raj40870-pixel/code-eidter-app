@@ -2,8 +2,8 @@
 ### *A Powerful, Standalone Multi-Language Mobile IDE & Compiler for Android*
 
 [![Official Website](https://img.shields.io/badge/Official_Website-Live_on_Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://code-eidter-apk-website.vercel.app/)
-[![Latest Release](https://img.shields.io/badge/Latest_Release-v1.3.5_Signed-success?style=for-the-badge&logo=android&logoColor=white)](https://code-eidter-apk-website.vercel.app/apk/CodeEditor-v1.3.5.apk)
-[![Direct APK Download](https://img.shields.io/badge/Direct_Download-CodeEditor--v1.3.5.apk-blue?style=for-the-badge&logo=android&logoColor=white)](https://code-eidter-apk-website.vercel.app/apk/CodeEditor-v1.3.5.apk)
+[![Latest Release](https://img.shields.io/badge/Latest_Release-v1.3.6_Signed-success?style=for-the-badge&logo=android&logoColor=white)](https://code-eidter-apk-website.vercel.app/apk/CodeEditor-v1.3.6.apk)
+[![Direct APK Download](https://img.shields.io/badge/Direct_Download-CodeEditor--v1.3.6.apk-blue?style=for-the-badge&logo=android&logoColor=white)](https://code-eidter-apk-website.vercel.app/apk/CodeEditor-v1.3.6.apk)
 [![Platform](https://img.shields.io/badge/Platform-Android_7.0_to_15-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://android.com)
 [![Languages](https://img.shields.io/badge/Languages-14+-blue?style=for-the-badge&logo=codeforces&logoColor=white)](#-supported-languages--starter-files)
 [![Compiler CDN](https://img.shields.io/badge/Compiler_Library-Official_CDN-purple?style=for-the-badge&logo=gnubash&logoColor=white)](https://github.com/raj40870-pixel/library)
@@ -16,12 +16,23 @@
 Visit our official web portal for setup tutorials, interactive screenshots, and one-tap APK installation:
 
 - 🔗 **Official Website**: [https://code-eidter-apk-website.vercel.app/](https://code-eidter-apk-website.vercel.app/)
-- ⬇️ **Direct APK Download (v1.3.5)**: [Download CodeEditor-v1.3.5.apk](https://code-eidter-apk-website.vercel.app/apk/CodeEditor-v1.3.5.apk) *(3.38 MB, Clean Signed Build)*
+- ⬇️ **Direct APK Download (v1.3.6)**: [Download CodeEditor-v1.3.6.apk](https://code-eidter-apk-website.vercel.app/apk/CodeEditor-v1.3.6.apk) *(3.38 MB, Clean Signed Build)*
 - 🗃️ **Compiler Toolchains CDN**: [Library Toolchain Packages](https://github.com/raj40870-pixel/library)
 
 ---
 
-## 🚀 What's New in Version 1.3.5 (Latest Release)
+## 🚀 What's New in Version 1.3.6 (Latest Release)
+
+- 🛡️ **Enhanced Target SDK Compatibility Architecture**:
+  Engineered nativeLibraryDir & JNI library execution path compatibility for Android 10+ (Target SDK 34), preventing SELinux executable permission blocks while maintaining full offline toolchain speed.
+- 🦀 **Offline Rust & Multi-Language Engine Upgrades**:
+  Improved offline Rust code interpreter stability, supporting functions, variables, math, loops, vectors, structs, and `io::stdin` interactive input.
+- 📱 **Indus App Store & Play Store Optimization**:
+  Optimized APK signing, resource compression, and store verification compliance for Indus App Store (`indusappstore.com`).
+
+---
+
+## 🚀 What's New in Version 1.3.5
 
 - ⌨️ **Comprehensive 39-Key Accessory Symbol Bar**:
   Never toggle Android soft-keyboard symbol layouts again! Directly accessible above the keyboard with smooth horizontal scrolling:
